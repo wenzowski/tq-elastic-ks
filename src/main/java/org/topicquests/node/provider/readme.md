@@ -1,0 +1,1 @@
+These files are here rather than in the TQElasticProvider project for rapid development. They will be replaced by a jar from that project later.
