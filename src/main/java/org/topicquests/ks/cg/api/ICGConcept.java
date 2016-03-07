@@ -34,6 +34,9 @@ import org.topicquests.ks.tm.api.ISubjectProxy;
  *  associated in which Conceptual graph which those links are valid.
  *  Each struct is associated with a linkType as well.
  *  </p>
+ *  <p> An <code>ICGConcept</code> is a <em>topic</em> which is a
+ *  <em>casting (role)</em> of a specific subject in the topicmap</p>
+ *  <p>It will be modeled as a specific type of <em>Pivot</em></p>
  */
 public interface ICGConcept extends ISubjectProxy {
 

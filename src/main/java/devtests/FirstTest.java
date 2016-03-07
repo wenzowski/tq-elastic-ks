@@ -36,6 +36,7 @@ public class FirstTest {
 	private Client client;
 	private final String
 		//oldlocator = "MyTenthNode",
+		index = "topics",
 		locator = "MyFirstNode",
 		label = "My first node",
 		description = "In which we are testing",
@@ -60,8 +61,8 @@ public class FirstTest {
 		//"details":["In which we are testing"],
 		//"label":["My 11th node"],"lIco":"largeimage.png"}
 
-		client.indexNode(n.getLocator(), n.getData());
-		IResult r = client.getNodeAsJSONObject(locator);
+		client.indexNode(n.getLocator(), index, n.getData());
+		IResult r = client.getNodeAsJSONObject(locator, index);
 		System.out.println("BBB "+r.getErrorString()+" | "+r.getResultObject());
 		if (r.getResultObject() != null) {
 			//could not cast to an interface

@@ -28,6 +28,29 @@ import org.topicquests.ks.api.ITicket;
 public interface ISubjectProxyModel {
 
 	/**
+	 * This is the only sanctioned API for adding parent nodes
+	 * @param proxy
+	 * @param contextLocator
+	 * @param smallIcon
+	 * @param locator
+	 * @param subject
+	 * @return TODO
+	 */
+	IResult addParentNode(ISubjectProxy proxy, String contextLocator, String smallIcon, String locator, String subject);
+	
+	/**
+	 * This is the only sanctioned API for adding child nodes
+	 * @param proxy
+	 * @param contextLocator
+	 * @param smallIcon
+	 * @param locator
+	 * @param subject
+	 * @param transcluderLocator
+	 * @return TODO
+	 */
+	IResult addChildNode(ISubjectProxy proxy, String contextLocator, String smallIcon, String locator, String subject, String transcluderLocator);
+
+	/**
 	 * Preferred way to add a <code>superClassLocator</code>
 	 * to an existing <code>node</code> to deal with
 	 * changes to transitive closure

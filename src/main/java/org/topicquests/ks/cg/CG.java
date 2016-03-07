@@ -15,18 +15,24 @@
  */
 package org.topicquests.ks.cg;
 
+import java.util.Iterator;
 import java.util.List;
 
 import net.minidev.json.JSONObject;
 
+import org.topicquests.common.api.IResult;
 import org.topicquests.ks.cg.api.IConceptualGraph;
+import org.topicquests.ks.graph.GraphVertex;
+import org.topicquests.ks.graph.api.IEdge;
+import org.topicquests.ks.graph.api.IGraphProvider;
+import org.topicquests.ks.graph.api.IQuery;
 import org.topicquests.ks.tm.SubjectProxy;
 
 /**
  * @author park
  *
  */
-public class CG extends SubjectProxy implements IConceptualGraph {
+public class CG extends GraphVertex implements IConceptualGraph {
 
 	/**
 	 * @param jo
@@ -106,5 +112,6 @@ public class CG extends SubjectProxy implements IConceptualGraph {
 		// TODO Auto-generated method stub
 
 	}
+
 
 }

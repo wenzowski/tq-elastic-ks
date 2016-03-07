@@ -131,6 +131,11 @@ public interface ITQCoreOntology {
 		     * A multi-valued property which is all the parents of this node
 		     */
 		    TRANSITIVE_CLOSURE_PROPERTY_TYPE			= "trCl",
+		    
+		    /**
+		     * A multi-valued list
+		     */
+		    PARENT_CHILD_PROPERTY_TYPE					= "ptCdl",
 		    /**
 		     * Predefines as subclass of LEGEND_TYPE and PROPERTY_TYPE
 		     */

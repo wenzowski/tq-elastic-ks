@@ -164,4 +164,9 @@ public class RelationStruct  implements IRelationStruct {
 		return (String)data.get(IRelationStruct.RELATION_LOCATOR);
 	}
 
+	@Override
+	public JSONObject getData() {
+		return data;
+	}
+
 }

@@ -234,7 +234,7 @@ public class BaseVirtualizer {
 			reason = itx.next();
 			t.addMergeReason(reason+" "+mergeData.get(reason));
 		}
-		IResult x = database.putNode(t, true);
+		IResult x = database.putNode(t);
 		environment.logDebug("MergeBean.relateNodes "+virtualNode.getLocator()+" "+targetNode.getLocator()+" "+t.getLocator());
 		if (x.hasError())
 			result.addErrorString(x.getErrorString());

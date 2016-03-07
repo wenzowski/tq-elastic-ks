@@ -151,7 +151,7 @@ public class JSONBootstrap {
 			n.setIsFederated(false);
 			n.setIsPrivate(false);
 			n.setVersion(Long.toString(System.currentTimeMillis()));
-			IResult r = database.putNode(n, false);
+			IResult r = database.putNode(n);
 			if (r.hasError())
 				result.addErrorString("JSONBootstrap2 "+r.getErrorString());
 		} catch (Exception e) {

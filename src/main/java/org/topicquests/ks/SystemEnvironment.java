@@ -23,11 +23,13 @@ import org.topicquests.common.api.IResult;
 import org.topicquests.ks.api.IExtendedConsoleDisplay;
 import org.topicquests.ks.api.IExtendedEnvironment;
 import org.topicquests.ks.api.ITQDataProvider;
+import org.topicquests.ks.graph.GraphEnvironment;
 import org.topicquests.ks.tm.JSONBootstrap;
 import org.topicquests.ks.tm.SubjectProxyModel;
 import org.topicquests.ks.tm.TQSystemDataProvider;
 import org.topicquests.ks.tm.api.ISubjectProxyModel;
 import org.topicquests.ks.tm.merge.VirtualizerHandler;
+import org.topicquests.ks.util.ElasticQueryDSL;
 import org.topicquests.node.provider.ProviderEnvironment;
 import org.topicquests.util.LoggingPlatform;
 import org.topicquests.util.Tracer;
@@ -47,6 +49,8 @@ public class SystemEnvironment implements IExtendedEnvironment {
 	private JSONBootstrap jsonBootstrapper;
 	private IExtendedConsoleDisplay console;
 	private SearchEnvironment searchEnvironment;
+	private ElasticQueryDSL queryDSL;
+	private GraphEnvironment graphEnvironment;
 
 
 
@@ -60,6 +64,7 @@ public class SystemEnvironment implements IExtendedEnvironment {
 		provider = new ProviderEnvironment();
 		int cacheSize = 8192; //TODO get from config
 		try {
+			queryDSL = new ElasticQueryDSL(this);
 			database = new TQSystemDataProvider(this, cacheSize);
 			virtualizerHandler = new VirtualizerHandler(this);
 			database.setVirtualizerHandler(virtualizerHandler);
@@ -68,6 +73,7 @@ public class SystemEnvironment implements IExtendedEnvironment {
 			e.printStackTrace();
 			//TODO  this is fatal -- System.exit
 		}
+		graphEnvironment = new GraphEnvironment(this);
 		proxyModel = database.getSubjectProxyModel();
 		init();
 		logDebug("Environment Started");
@@ -84,6 +90,12 @@ public class SystemEnvironment implements IExtendedEnvironment {
 		return provider;
 	}
 	
+	public GraphEnvironment getGraphEnvironment() {
+		return graphEnvironment;
+	}
+	public ElasticQueryDSL getQueryDSL() {
+		return queryDSL;
+	}
 	public ISubjectProxyModel getSubjectProxyModel() {
 		return proxyModel;
 	}
@@ -94,6 +106,10 @@ public class SystemEnvironment implements IExtendedEnvironment {
 	
 	public StatisticsUtility getStats() {
 		return stats;
+	}
+	
+	public void replaceStatisticsUtility(StatisticsUtility util) {
+		stats = util;
 	}
 	
 	@Override
@@ -115,7 +131,8 @@ public class SystemEnvironment implements IExtendedEnvironment {
 	}
 
 	public void shutDown() {
-		//TODO
+		if (database != null)
+			database.shutDown();
 	}
 	
 	private void init() {
@@ -127,7 +144,7 @@ public class SystemEnvironment implements IExtendedEnvironment {
 			shouldBootstrap = bs.equalsIgnoreCase("Yes");
 		if (shouldBootstrap)
 			bootstrap();
-
+		
 	}
 
 	/////////////////////////////

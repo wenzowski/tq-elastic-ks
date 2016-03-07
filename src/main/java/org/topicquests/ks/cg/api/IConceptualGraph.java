@@ -17,6 +17,8 @@ package org.topicquests.ks.cg.api;
 
 import java.util.List;
 
+import org.topicquests.ks.graph.api.IVertex;
+
 /**
  * 
  * @author park
@@ -24,7 +26,7 @@ import java.util.List;
  *  a collection of {@link ICGConcept} objects and {@link ICGRelation}
  *  objects.</p>
  */
-public interface IConceptualGraph { //extends INode {
+public interface IConceptualGraph extends IVertex {
 
 	////////////////////////////////////////
 	// Technical note:

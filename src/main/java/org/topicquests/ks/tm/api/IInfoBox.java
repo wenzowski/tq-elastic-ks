@@ -15,6 +15,8 @@
  */
 package org.topicquests.ks.tm.api;
 
+import net.minidev.json.JSONObject;
+
 /**
  * @author park
  * An InfoBox is a <em>named</em> object which constitutes
@@ -47,6 +49,8 @@ public interface IInfoBox {
 	void setProperty(String key, Object value);
 	Object getProperty(String key);
 	
-	String toJSON();
+	JSONObject getData();
+	
+	//String toJSON();
 
 }

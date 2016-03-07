@@ -102,17 +102,17 @@ public class DefaultVirtualizer extends BaseVirtualizer implements IVirtualizer 
 					virtualNode.addSuperclassId(itr.next());
 			}
 			setUnionProperties(virtualNode,mymerge);
-			r = database.putNode(virtualNode, true);
+			r = database.putNode(virtualNode);
 			if (r.hasError())
 				result.addErrorString(r.getErrorString());
 			r = super.wireMerge(virtualNode, mymerge, mergeData, confidence, userLocator);
 			if (r.hasError())
 				result.addErrorString(r.getErrorString());
 			String tupleLocator = (String)r.getResultObject();
-			r = database.putNode(virtualNode, true);
+			r = database.putNode(virtualNode);
 			if (r.hasError())
 				result.addErrorString(r.getErrorString());
-			r = database.putNode(mymerge, true);
+			r = database.putNode(mymerge);
 			if (r.hasError())
 				result.addErrorString(r.getErrorString());
 			r = super.reWireNodeGraph(mymerge.getLocator(), virtualNode.getLocator(), tupleLocator, credentials);
@@ -137,7 +137,7 @@ public class DefaultVirtualizer extends BaseVirtualizer implements IVirtualizer 
 			}
 			setUnionProperties(virtualNode,primary);
 			setUnionProperties(virtualNode,merge);
-			r = database.putNode(virtualNode, true);
+			r = database.putNode(virtualNode);
 			if (r.hasError())
 				result.addErrorString(r.getErrorString());
 			//virtualNode is now constructed
@@ -147,10 +147,10 @@ public class DefaultVirtualizer extends BaseVirtualizer implements IVirtualizer 
 				result.addErrorString(r.getErrorString());
 			String tupleLocator = (String)r.getResultObject();
 			//now, save these nodes
-			r = database.putNode(virtualNode, true);
+			r = database.putNode(virtualNode);
 			if (r.hasError())
 				result.addErrorString(r.getErrorString());
-			r = database.putNode(primary, true);
+			r = database.putNode(primary);
 			if (r.hasError())
 				result.addErrorString(r.getErrorString());
 			r = super.reWireNodeGraph(primary.getLocator(), virtualNode.getLocator(), tupleLocator, credentials);
@@ -160,7 +160,7 @@ public class DefaultVirtualizer extends BaseVirtualizer implements IVirtualizer 
 			if (r.hasError())
 				result.addErrorString(r.getErrorString());
 			tupleLocator = (String)r.getResultObject();
-			r = database.putNode(merge, true);
+			r = database.putNode(merge);
 			if (r.hasError())
 				result.addErrorString(r.getErrorString());
 			r = super.reWireNodeGraph(primary.getLocator(), merge.getLocator(), tupleLocator, credentials);

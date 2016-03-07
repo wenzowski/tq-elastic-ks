@@ -19,26 +19,32 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
 
+import org.topicquests.ks.SystemEnvironment;
 import org.topicquests.ks.tm.api.ISubjectProxy;
 import org.topicquests.util.ConfigurationHelper;
 
 /**
  * @author park
  * <p>This behaves as an <em>interceptor</em> to send out
- * {@link INode} objects for merge
+ * {@link ISubjectProxy} objects for merge
  * </p>
  */
 public class MergeInterceptor {
+	private SystemEnvironment environment;
 	private final String agentTag = "NewDocument";
 	private int myPort;
 	private Properties p = new Properties();
 	private boolean isRunning = true;
+	private SameLabelDetector sameLabelDetector;
 	private Worker thread;
+	private boolean shouldPropagate = false; // default
 
 	/**
+	 * @param env TODO
 	 * 
 	 */
-	public MergeInterceptor() throws Exception {
+	public MergeInterceptor(SystemEnvironment env) throws Exception {
+		isRunning = true;
 		//file must be in classpath
 		File f = new File(ConfigurationHelper.findPath("agents.properties"));
 		FileInputStream fis = new FileInputStream(f);
@@ -47,6 +53,9 @@ public class MergeInterceptor {
 		String portx = p.getProperty("port");
 		myPort = Integer.parseInt(portx);
 		thread = new Worker();
+		sameLabelDetector = new SameLabelDetector(environment);
+		String sp = env.getStringProperty("MergeListenerPropagate");
+		shouldPropagate = !(sp.equalsIgnoreCase("No"));
 	}
 	
 	public void acceptNodeForMerge(ISubjectProxy node) {
@@ -61,12 +70,14 @@ public class MergeInterceptor {
 			isRunning = false;
 			thread.notify();
 		}
+		sameLabelDetector.shutDown();
 	}
 
 	/**
 	 * Send the data
 	 * @param data
 	 */
+	//TODO this is blocking!!!
 	void serveData(String data) {
 		ServerSocket srvr = null;
 		Socket skt = null;
@@ -106,39 +117,50 @@ public class MergeInterceptor {
 	
 	class Worker extends Thread {
 		private List<ISubjectProxy>documents;
-
+		private boolean isStillRunning = true;
+		
 		Worker() {
 			documents = new ArrayList<ISubjectProxy>();
 			this.start();
 		}
 		
-		public void halt() {
-			synchronized(documents) {
-				isRunning = false;
-				documents.notify();
-			}
-		}
 		public void addDocument(ISubjectProxy doc) {
 			synchronized(documents) {
+				System.out.println("INTERCEPTING "+doc.getLocator()+" "+documents.size()+" "+isRunning);
 				documents.add(doc);
-				documents.notify();
+				documents.notifyAll();
+				System.out.println("INTERCEPTED");
 			}
 		}
+		
 		public void run() {
 			ISubjectProxy theDoc = null;
-			while (isRunning) {
+			while (isStillRunning) {
 				synchronized(documents) {
+					System.out.println("INTERX "+documents.size()+" "+isRunning);
 					if (documents.isEmpty()) {
-						try {
-							documents.wait();
-						} catch (Exception e) {}
+						if (!isRunning)
+							isStillRunning = false;
+						else {
+							try {
+								documents.wait();
+								System.out.println("NOTIFIED");
+							} catch (Exception e) {e.printStackTrace();}
+							if (!documents.isEmpty()) {
+								theDoc = documents.remove(0);
+								System.out.println("INTERCEPTING2 "+theDoc.getLocator()+" "+documents.size());								
+							}
+						}
 					}
-					if (isRunning && !documents.isEmpty()) {
+					else {
 						theDoc = documents.remove(0);
+						System.out.println("INTERCEPTING3 "+theDoc.getLocator());
 					}
 				}
-				if (isRunning && theDoc != null) {
-					serveData(theDoc.toJSONString());
+				if (theDoc != null) {
+					sameLabelDetector.acceptProxy(theDoc);
+					if (shouldPropagate)
+						serveData(theDoc.toJSONString());
 					theDoc = null;
 				}
 			}

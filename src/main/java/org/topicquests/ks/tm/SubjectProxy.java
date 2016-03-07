@@ -32,6 +32,8 @@ import org.topicquests.ks.api.ITQCoreOntology;
 import org.topicquests.ks.tm.api.IAirStruct;
 import org.topicquests.ks.tm.api.IChildStruct;
 import org.topicquests.ks.tm.api.IInfoBox;
+import org.topicquests.ks.tm.api.IParentChildContainer;
+import org.topicquests.ks.tm.api.IParentChildStruct;
 import org.topicquests.ks.tm.api.IRelationStruct;
 import org.topicquests.ks.tm.api.ISubjectProxy;
 import org.topicquests.ks.tm.api.ITuple;
@@ -40,8 +42,10 @@ import org.topicquests.ks.tm.api.ITuple;
  * @author park
  *
  */
-public class SubjectProxy implements ISubjectProxy, ITuple {
-	private JSONObject data;
+public class SubjectProxy implements 
+		ISubjectProxy, ITuple, IParentChildContainer {
+	//we sometimes extend this object
+	protected JSONObject data;
 	/**
 	 * @param jo
 	 */
@@ -427,6 +431,7 @@ public class SubjectProxy implements ISubjectProxy, ITuple {
 	@Override
 	public void setLastEditDate(Date date) {
 		data.put(ITQCoreOntology.LAST_EDIT_DATE_PROPERTY, DateUtil.formatIso8601(date));//DateUtil.defaultTimestamp(date));
+		setVersion(Long.toString(System.currentTimeMillis()));
 	}
 
 	/* (non-Javadoc)
@@ -435,6 +440,7 @@ public class SubjectProxy implements ISubjectProxy, ITuple {
 	@Override
 	public void setLastEditDate(String date) {
 		data.put(ITQCoreOntology.LAST_EDIT_DATE_PROPERTY, date);//DateUtil.defaultTimestamp(date));
+		setVersion(Long.toString(System.currentTimeMillis()));
 	}
 
 	/* (non-Javadoc)
@@ -894,7 +900,7 @@ public class SubjectProxy implements ISubjectProxy, ITuple {
 		s.setTargetLocator(targetLocator);
 		s.setTargetLabel(targetLabel);
 		s.setTargetNodeType(nodeType);
-		addMultivaluedSetStringProperty(ITQCoreOntology.TUPLE_LIST_PROPERTY,s.toJSON());
+		this.addMultivaluedSetJSONProperty(ITQCoreOntology.TUPLE_LIST_PROPERTY, s.getData());
 	}
 
 	/* (non-Javadoc)
@@ -913,29 +919,29 @@ public class SubjectProxy implements ISubjectProxy, ITuple {
 		s.setTargetLocator(targetLocator);
 		s.setTargetLabel(targetLabel);
 		s.setTargetNodeType(nodeType);
-		addMultivaluedSetStringProperty(ITQCoreOntology.TUPLE_LIST_PROPERTY_RESTRICTED,s.toJSON());
+		addMultivaluedSetJSONProperty(ITQCoreOntology.TUPLE_LIST_PROPERTY_RESTRICTED,s.getData());
 	}
 
 	/* (non-Javadoc)
 	 * @see org.topicquests.ks.tm.api.ISubjectProxy#listRelationsByRelationType(java.lang.String)
 	 */
 	@Override
-	public List<String> listRelationsByRelationType(String relationType) {
-		List<String> relns = this.getMultivaluedProperty(ITQCoreOntology.TUPLE_LIST_PROPERTY);
+	public List<JSONObject> listRelationsByRelationType(String relationType) {
+		List<JSONObject> relns = this.getMultivaluedJSONproperty(ITQCoreOntology.TUPLE_LIST_PROPERTY);
 		if (relns == null)
-			return new ArrayList<String>();
+			return new ArrayList<>();
 		else if (relationType == null)
 			return relns;
 		else {
 			//This is messy because we are dealing with JSON strings
 			// based on IRelationStruct
-			List<String> result = new ArrayList<String>();
-			String rln,x;
+			List<JSONObject> result = new ArrayList<>();
+			JSONObject rln,x;
 			int len = relns.size();
 			for (int i=0;i<len;i++) {
 				rln = relns.get(i);
-				x = pluckRelationTypeFromJSONString(rln);
-				if (x != null && x.equals(relationType))
+				//x = pluckRelationTypeFromJSONString(rln);
+				if (rln != null && rln.get("relationType").equals(relationType))
 					result.add(rln);
 			}
 			return result;
@@ -946,23 +952,23 @@ public class SubjectProxy implements ISubjectProxy, ITuple {
 	 * @see org.topicquests.ks.tm.api.ISubjectProxy#listRestrictedRelationsByRelationType(java.lang.String)
 	 */
 	@Override
-	public List<String> listRestrictedRelationsByRelationType(
+	public List<JSONObject> listRestrictedRelationsByRelationType(
 			String relationType) {
-		List<String> relns = this.getMultivaluedProperty(ITQCoreOntology.TUPLE_LIST_PROPERTY_RESTRICTED);
+		List<JSONObject> relns = this.getMultivaluedJSONproperty(ITQCoreOntology.TUPLE_LIST_PROPERTY_RESTRICTED);
 		if (relns == null)
-			return new ArrayList<String>();
+			return new ArrayList<>();
 		else if (relationType == null)
 			return relns;
 		else {
 			//This is messy because we are dealing with JSON strings
 			// based on IRelationStruct
-			List<String> result = new ArrayList<String>();
-			String rln,x;
+			List<JSONObject> result = new ArrayList<>();
+			JSONObject rln,x;
 			int len = relns.size();
 			for (int i=0;i<len;i++) {
 				rln = relns.get(i);
-				x = pluckRelationTypeFromJSONString(rln);
-				if (x != null && x.equals(relationType))
+				//x = pluckRelationTypeFromJSONString(rln);
+				if (rln != null && rln.get("relationType").equals(relationType))
 					result.add(rln);
 			}
 			return result;
@@ -984,7 +990,7 @@ public class SubjectProxy implements ISubjectProxy, ITuple {
 		s.setTargetLabel(targetLabel);
 		s.setTargetLocator(targetLocator);
 		s.setTargetNodeType(nodeType);
-		addMultivaluedSetStringProperty(ITQCoreOntology.PIVOT_LIST_PROPERTY,s.toJSON());
+		this.addMultivaluedSetJSONProperty(ITQCoreOntology.PIVOT_LIST_PROPERTY, s.getData());
 	}
 
 	/* (non-Javadoc)
@@ -1003,29 +1009,29 @@ public class SubjectProxy implements ISubjectProxy, ITuple {
 		s.setTargetLocator(targetLocator);
 		s.setTargetLabel(targetLabel);
 		s.setTargetNodeType(nodeType);
-		addMultivaluedSetStringProperty(ITQCoreOntology.RESTRICTED_PIVOT_LIST_PROPERTY,s.toJSON());
+		addMultivaluedSetJSONProperty(ITQCoreOntology.RESTRICTED_PIVOT_LIST_PROPERTY,s.getData());
 	}
 
 	/* (non-Javadoc)
 	 * @see org.topicquests.ks.tm.api.ISubjectProxy#listPivotsByRelationType(java.lang.String)
 	 */
 	@Override
-	public List<String> listPivotsByRelationType(String relationType) {
-		List<String> relns = this.getMultivaluedProperty(ITQCoreOntology.PIVOT_LIST_PROPERTY);
+	public List<JSONObject> listPivotsByRelationType(String relationType) {
+		List<JSONObject> relns = this.getMultivaluedJSONproperty(ITQCoreOntology.PIVOT_LIST_PROPERTY);
 		if (relns == null)
-			return new ArrayList<String>();
+			return new ArrayList<>();
 		else if (relationType == null)
 			return relns;
 		else {
 			//This is messy because we are dealing with JSON strings
 			// based on IRelationStruct
-			List<String> result = new ArrayList<String>();
-			String rln,x;
+			List<JSONObject> result = new ArrayList<>();
+			JSONObject rln,x;
 			int len = relns.size();
 			for (int i=0;i<len;i++) {
 				rln = relns.get(i);
-				x = pluckRelationTypeFromJSONString(rln);
-				if (x != null && x.equals(relationType))
+				//x = pluckRelationTypeFromJSONString(rln);
+				if (rln != null && rln.get("relationType").equals(relationType))
 					result.add(rln);
 			}
 			return result;
@@ -1036,22 +1042,22 @@ public class SubjectProxy implements ISubjectProxy, ITuple {
 	 * @see org.topicquests.ks.tm.api.ISubjectProxy#listRestrictedPivotsByRelationType(java.lang.String)
 	 */
 	@Override
-	public List<String> listRestrictedPivotsByRelationType(String relationType) {
-		List<String> relns = this.getMultivaluedProperty(ITQCoreOntology.RESTRICTED_PIVOT_LIST_PROPERTY);
+	public List<JSONObject> listRestrictedPivotsByRelationType(String relationType) {
+		List<JSONObject> relns = this.getMultivaluedJSONproperty(ITQCoreOntology.RESTRICTED_PIVOT_LIST_PROPERTY);
 		if (relns == null)
-			return new ArrayList<String>();
+			return new ArrayList<JSONObject>();
 		else if (relationType == null)
 			return relns;
 		else {
 			//This is messy because we are dealing with JSON strings
 			// based on IRelationStruct
-			List<String> result = new ArrayList<String>();
-			String rln,x;
+			List<JSONObject> result = new ArrayList<>();
+			JSONObject rln,x;
 			int len = relns.size();
 			for (int i=0;i<len;i++) {
 				rln = relns.get(i);
-				x = pluckRelationTypeFromJSONString(rln);
-				if (x != null && x.equals(relationType))
+				//x = pluckRelationTypeFromJSONString(rln);
+				if (rln != null && rln.get("relationType").equals(relationType))
 					result.add(rln);
 			}
 			return result;
@@ -1059,11 +1065,12 @@ public class SubjectProxy implements ISubjectProxy, ITuple {
 }
 
 	/* (non-Javadoc)
-	 * @see org.topicquests.ks.tm.api.ISubjectProxy#addChildNode(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+	 * @see org.topicquests.ks.tm.api.IParentChildContainer#addChildNode(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)
 	 */
 	@Override
-	public void addChildNode(String contextLocator, String smallIcon,
+	public boolean addChildNode(String contextLocator, String smallIcon,
 			String locator, String subject, String transcluderLocator) {
+		boolean result = false; // default
 		IChildStruct s = new ChildStruct();
 		s.setContextLocator(contextLocator);
 		s.setLocator(locator);
@@ -1071,43 +1078,71 @@ public class SubjectProxy implements ISubjectProxy, ITuple {
 		s.setSubject(subject);
 		if (transcluderLocator != null)
 			s.setTranscluderLocator(transcluderLocator);
-		String json = s.toJSON();
-		List<String> relns = this.getMultivaluedProperty(ITQCoreOntology.CHILD_NODE_LIST);
-		if (relns == null)
-			relns = new ArrayList<String>();
-		if (!relns.contains(json)) {
-			relns.add(json);
+		//String json = s.toJSON();
+		List<JSONObject> relns = getMultivaluedJSONproperty(ITQCoreOntology.CHILD_NODE_LIST);
+		if (relns == null) {
+			relns = new ArrayList<>();
+			data.put(ITQCoreOntology.CHILD_NODE_LIST, relns);
+		}
+		System.out.println("PROXY_ADDCHILD "+relns+" "+s.getData());
+		if (!relns.contains(s.getData())) {
+			relns.add(s.getData());
 			this.data.put(ITQCoreOntology.CHILD_NODE_LIST, relns);
-		}	}
+			System.out.println("PROXY_ADDCHILD2 "+relns);
+			doUpdate();
+			result = true;
+		}	
+		return result;
+	}
+	
 
 	/* (non-Javadoc)
 	 * @see org.topicquests.ks.tm.api.ISubjectProxy#listChildNodes(java.lang.String)
 	 */
 	@Override
-	public List<String> listChildNodes(String contextLocator) {
-		List<String> relns = this.getMultivaluedProperty(ITQCoreOntology.CHILD_NODE_LIST);
+	public List<JSONObject> listChildNodes(String contextLocator) {
+		List<JSONObject> relns = this.getMultivaluedJSONproperty(ITQCoreOntology.CHILD_NODE_LIST);
 		if (relns == null)
-			return new ArrayList<String>();
+			return new ArrayList<>();
 		else if (contextLocator == null)
 			return relns;
 		else {
 			//This is messy because we are dealing with JSON strings
 			// based on IChildStruct
-			List<String> result = new ArrayList<String>();
-			String rln,x;
+			List<JSONObject> result = new ArrayList<>();
+			JSONObject rln,x;
 			int len = relns.size();
 			for (int i=0;i<len;i++) {
 				rln = relns.get(i);
-				x = pluckContextFromJSONString(rln);
-				if (x != null && x.equals(contextLocator))
+				//x = pluckContextFromJSONString(rln);
+				if (rln != null && rln.get("lox").equals(contextLocator))
 					result.add(rln);
 			}
 			return result;
 		}
 	}
 
+	public void addToParentChildList(String locator) {
+		//IParentChildStruct s = new ParentChildStruct(locator, context);
+		List<String> l = (List<String>)this.data.get(ITQCoreOntology.PARENT_CHILD_PROPERTY_TYPE);
+		if (l == null) {
+			l = new ArrayList<>();
+		}
+		if (!l.contains(locator)) {
+			l.add(locator);
+		}
+		data.put(ITQCoreOntology.PARENT_CHILD_PROPERTY_TYPE, l);
+		doUpdate();
+	}
+	
+	@Override
+	public List<String> listParentChildTree() {
+		List<String> l = (List<String>)this.data.get(ITQCoreOntology.PARENT_CHILD_PROPERTY_TYPE);
+		return l;
+	}
+
 	/* (non-Javadoc)
-	 * @see org.topicquests.ks.tm.api.ISubjectProxy#addParentNode(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+	 * @see org.topicquests.ks.tm.api.IParentChildContainer#addParentNode(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
 	 */
 	@Override
 	public void addParentNode(String contextLocator, String smallIcon,
@@ -1117,13 +1152,15 @@ public class SubjectProxy implements ISubjectProxy, ITuple {
 		s.setLocator(locator);
 		s.setSmallIcon(smallIcon);
 		s.setSubject(subject);
-		String json = s.toJSON();
-		List<String> relns = this.getMultivaluedProperty(ITQCoreOntology.PARENT_NODE_LIST);
+		//String json = s.toJSON();
+		List<JSONObject> relns = getMultivaluedJSONproperty(ITQCoreOntology.PARENT_NODE_LIST);
 		if (relns == null)
-			relns = new ArrayList<String>();
-		if (!relns.contains(json)) {
-			relns.add(json);
+			relns = new ArrayList<>();
+		if (!relns.contains(s.getData())) {
+			relns.add(s.getData());
 			this.data.put(ITQCoreOntology.PARENT_NODE_LIST, relns);
+			doUpdate();
+			//addToParentChildList(locator);
 		}
 	}
 
@@ -1131,22 +1168,22 @@ public class SubjectProxy implements ISubjectProxy, ITuple {
 	 * @see org.topicquests.ks.tm.api.ISubjectProxy#listParentNodes(java.lang.String)
 	 */
 	@Override
-	public List<String> listParentNodes(String contextLocator) {
-		List<String> relns = this.getMultivaluedProperty(ITQCoreOntology.PARENT_NODE_LIST);
+	public List<JSONObject> listParentNodes(String contextLocator) {
+		List<JSONObject> relns = this.getMultivaluedJSONproperty(ITQCoreOntology.PARENT_NODE_LIST);
 		if (relns == null)
-			return new ArrayList<String>();
+			return new ArrayList<>();
 		else if (contextLocator == null)
 			return relns;
 		else {
 			//This is messy because we are dealing with JSON strings
 			// based on IChildStruct
-			List<String> result = new ArrayList<String>();
-			String rln,x;
+			List<JSONObject> result = new ArrayList<>();
+			JSONObject rln,x;
 			int len = relns.size();
 			for (int i=0;i<len;i++) {
 				rln = relns.get(i);
-				x = pluckContextFromJSONString(rln);
-				if (x != null && x.equals(contextLocator))
+				//x = pluckContextFromJSONString(rln);
+				if (rln != null && rln.get("lox").equals(contextLocator))
 					result.add(rln);
 			}
 			return result;
@@ -1198,8 +1235,8 @@ public class SubjectProxy implements ISubjectProxy, ITuple {
 	 */
 	@Override
 	public void putInfoBox(IInfoBox infoBox) {
-		Map<String,String>ib = getInfoBoxes();
-		ib.put(infoBox.getName(), infoBox.toJSON());
+		Map<String,JSONObject>ib = getInfoBoxes();
+		ib.put(infoBox.getName(), infoBox.getData());
 		setInfoBoxes(ib);
 	}
 
@@ -1207,8 +1244,8 @@ public class SubjectProxy implements ISubjectProxy, ITuple {
 	 * @see org.topicquests.ks.tm.api.ISubjectProxy#getInfoBox(java.lang.String)
 	 */
 	@Override
-	public String getInfoBox(String name) {
-		Map<String,String>ib = getInfoBoxes();
+	public JSONObject getInfoBox(String name) {
+		Map<String,JSONObject>ib = getInfoBoxes();
 		return ib.get(name);
 	}
 
@@ -1217,7 +1254,7 @@ public class SubjectProxy implements ISubjectProxy, ITuple {
 	 */
 	@Override
 	public void removeInfoBox(String name) {
-		Map<String,String>ib = getInfoBoxes();
+		Map<String,JSONObject>ib = getInfoBoxes();
 		ib.remove(name);
 		setInfoBoxes(ib);
 	}
@@ -1226,9 +1263,9 @@ public class SubjectProxy implements ISubjectProxy, ITuple {
 	 * @see org.topicquests.ks.tm.api.ISubjectProxy#listInfoBoxes()
 	 */
 	@Override
-	public List<String> listInfoBoxes() {
-		List<String>result = new ArrayList<String>();
-		Map<String,String>ib = getInfoBoxes();
+	public List<JSONObject> listInfoBoxes() {
+		List<JSONObject>result = new ArrayList<>();
+		Map<String,JSONObject>ib = getInfoBoxes();
 		Iterator<String>itr = ib.keySet().iterator();
 		while (itr.hasNext())
 			result.add(ib.get(itr.next()));
@@ -1378,6 +1415,22 @@ public class SubjectProxy implements ISubjectProxy, ITuple {
 		return result;
 	}
 	
+	private List<JSONObject> getMultivaluedJSONproperty(String key) {
+		List<JSONObject> result = null;
+		Object op = data.get(key);
+		if (op != null) {
+			if (op instanceof JSONObject) {
+				result = new ArrayList<>();
+				result.add((JSONObject)op);
+			} else {
+				result = (List<JSONObject>)op;
+			} 
+		} else {
+			result = new ArrayList<JSONObject>();
+			data.put(key, result);
+		}
+		return result;
+	}
 	/**
 	 * Given a <code>baseField</code>, e.g. "label", fetch all
 	 * label fields regardless of language codes
@@ -1412,6 +1465,22 @@ public class SubjectProxy implements ISubjectProxy, ITuple {
 		return result;
 	}
 
+	private void addMultivaluedSetJSONProperty(String key, JSONObject value) {
+		Object o = data.get(key);
+		List<JSONObject> ll;
+		if (o == null) {
+			ll = new ArrayList<>();
+		} else if ( o instanceof JSONObject) {
+			ll = new ArrayList<>();
+			ll.add((JSONObject)o);
+		} else {
+			ll = (List<JSONObject>)o;
+		}
+		if (!ll.contains(value))
+			ll.add(value);
+		data.put(key, ll);
+	}
+	
 	private void addMultivaluedSetStringProperty(String key, String value) {
 		
 		Object o = data.get(key);
@@ -1429,7 +1498,7 @@ public class SubjectProxy implements ISubjectProxy, ITuple {
 		data.put(key, ll);
 	}
 	
-	private String pluckRelationTypeFromJSONString(String json) {
+/**	private String pluckRelationTypeFromJSONString(String json) {
 		String result = null;
 		String str = json;
 		int where = str.indexOf(IRelationStruct.RELATION_TYPE);
@@ -1444,9 +1513,10 @@ public class SubjectProxy implements ISubjectProxy, ITuple {
 		}
 		System.out.println("Node.pluckRelationTypeFromJSONString "+json+" | "+result);
 		return result;
-	}
+	} */
 	
-	private String pluckContextFromJSONString(String json) {
+	//TODO : would it be faster to just parse the string and fetch context?
+/*	private String pluckContextFromJSONString(String json) {
 		String result = null;
 		String str = json;
 		int where = str.indexOf(IChildStruct.CONTEXT_LOCATOR);
@@ -1461,7 +1531,7 @@ public class SubjectProxy implements ISubjectProxy, ITuple {
 		}
 		System.out.println("Node.pluckRelationTypeFromJSONString "+json+" | "+result);
 		return result;
-	}
+	} */
 
 	/**
 	 * Given a <code>baseField</code>, e.g. "label", fetch all
@@ -1490,10 +1560,10 @@ public class SubjectProxy implements ISubjectProxy, ITuple {
 	 * Internal
 	 * @return does not return <code>null</code>
 	 */
-	private Map<String,String> getInfoBoxes() {
-		Map<String,String> result = (Map<String,String>)data.get(ITQCoreOntology.INFO_BOX_LIST_PROPERTY);
+	private Map<String,JSONObject> getInfoBoxes() {
+		Map<String,JSONObject> result = (Map<String,JSONObject>)data.get(ITQCoreOntology.INFO_BOX_LIST_PROPERTY);
 		if (result == null)
-			result = new HashMap<String,String>();
+			result = new HashMap<String,JSONObject>();
 		return result;
 	}
 	
@@ -1501,8 +1571,10 @@ public class SubjectProxy implements ISubjectProxy, ITuple {
 	 * Internal
 	 * @param boxes
 	 */
-	private void setInfoBoxes(Map<String,String> boxes) {
+	private void setInfoBoxes(Map<String,JSONObject> boxes) {
 		this.data.put(ITQCoreOntology.INFO_BOX_LIST_PROPERTY, boxes);
 	}
+
+
 
 }

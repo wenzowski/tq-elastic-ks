@@ -125,9 +125,14 @@ public class InfoBox implements IInfoBox {
 	/* (non-Javadoc)
 	 * @see org.topicquests.model.api.node.IInfoBox#toJSON()
 	 */
+//	@Override
+//	public String toJSON() {
+//		return data.toJSONString();
+//	}
+
 	@Override
-	public String toJSON() {
-		return data.toJSONString();
+	public JSONObject getData() {
+		return data;
 	}
 
 }

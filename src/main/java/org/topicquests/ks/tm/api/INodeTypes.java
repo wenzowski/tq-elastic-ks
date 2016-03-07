@@ -44,9 +44,12 @@ public interface INodeTypes {
 	 	ORGANIZATION_TYPE 		= "OrganizationNodeType",
 	 	PROJECT_TYPE			= "ProjectNodeType",
 	 	BLOG_TYPE				= "BlogNodeType",
+	 	WIKI_TYPE				= "WikiNodeType",
 	 	MICROBLOG_TYPE			= "MicroblogNodeType",
 	 	SUMMARY_TYPE			= "SummaryNodeType",
 	 	PERSPECTIVE_TYPE		= "PerspectiveNodeType",
-	 	BOOKMARK_TYPE			= "BookmarkNodeType";
+	 	BOOKMARK_TYPE			= "BookmarkNodeType",
+	 	ANNOTATION_TYPE			= "AnnotationType";
+		
 	
 }

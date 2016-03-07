@@ -122,4 +122,9 @@ public class ChildStruct implements IChildStruct {
 		return (String)data.get(IChildStruct.SUBJECT);
 	}
 
+	@Override
+	public JSONObject getData() {
+		return data;
+	}
+
 }

@@ -398,7 +398,9 @@ public class DoubleTreeTab
 	@Override
 	public void acceptText(String text) {
 		System.out.println(text);
-		database.updateProxyFromJSON(text);
+		IResult r = database.updateProxyFromJSON(text, true);
+		Object o = r.getResultObjectA();
+		//TODO if o != null, we had an OptimisticLockException
 	}
 }
 

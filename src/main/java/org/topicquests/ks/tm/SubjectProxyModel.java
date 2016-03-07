@@ -31,6 +31,7 @@ import org.topicquests.ks.api.ITQCoreOntology;
 import org.topicquests.ks.api.ITQDataProvider;
 import org.topicquests.ks.api.ITicket;
 import org.topicquests.ks.tm.api.IMergeImplementation;
+import org.topicquests.ks.tm.api.IParentChildContainer;
 import org.topicquests.ks.tm.api.ISubjectProxy;
 import org.topicquests.ks.tm.api.ISubjectProxyModel;
 import org.topicquests.ks.tm.api.ITuple;
@@ -255,13 +256,15 @@ public class SubjectProxyModel implements ISubjectProxyModel {
 		// And it might be possible that we need the
 		// ability to detect that
 		///////////////////////////////////////////
-		IResult x = database.putNode(sourceNode,true);
+		sourceNode.doUpdate(); // update version
+		IResult x = database.updateNode(sourceNode, true);
 		if (x.hasError())
 			result.addErrorString(x.getErrorString());
-		x = database.putNode(targetNode,true);
+		targetNode.doUpdate();
+		x = database.updateNode(targetNode, true);
 		if (x.hasError())
 			result.addErrorString(x.getErrorString());
-		database.putNode(t,true);
+		database.putNode(t);
 		if (x.hasError())
 			result.addErrorString(x.getErrorString());
 		environment.logDebug("SubjectProxyModel.relateNewNodes "+sourceNode.getLocator()+" "+targetNode.getLocator()+" "+t.getLocator()+" | "+result.getErrorString());
@@ -322,13 +325,15 @@ public class SubjectProxyModel implements ISubjectProxyModel {
 		// And it might be possible that we need the
 		// ability to detect that
 		///////////////////////////////////////////
-		IResult x = database.putNode(sourceNode,true);
+		sourceNode.doUpdate();
+		IResult x = database.updateNode(sourceNode, true);
 		if (x.hasError())
 			result.addErrorString(x.getErrorString());
-		x = database.putNode(targetNode,true);
+		x = database.putNode(targetNode);
 		if (x.hasError())
 			result.addErrorString(x.getErrorString());
-		database.putNode(t,true);
+		t.doUpdate();
+		database.updateNode(t, true);
 		if (x.hasError())
 			result.addErrorString(x.getErrorString());
 		environment.logDebug("SubjectProxyModel.relateExistingNodesAsPivots "+sourceNode.getLocator()+" "+targetNode.getLocator()+" "+t.getLocator()+" | "+result.getErrorString());
@@ -386,6 +391,46 @@ public class SubjectProxyModel implements ISubjectProxyModel {
 			result  = n.listTransitiveClosure();
 		if (result == null)
 			result = new ArrayList<String>();
+		return result;
+	}
+
+	@Override
+	public IResult addParentNode(ISubjectProxy proxy, String contextLocator,
+			String smallIcon, String locator, String subject) {
+		IResult result = new ResultPojo();
+		// TODO Auto-generated method stub
+		return result;
+	}
+
+	@Override
+	public IResult addChildNode(ISubjectProxy proxy, String contextLocator,
+			String smallIcon, String locator, String subject,
+			String transcluderLocator) {
+		IResult result = new ResultPojo();
+		IResult r = null;
+		// add child to proxy
+		boolean didAdd = ((IParentChildContainer)proxy).addChildNode(contextLocator, smallIcon, locator, subject, transcluderLocator);
+		if (didAdd) {
+			r = database.updateNode(proxy, true);
+			if (r.hasError())
+				result.addErrorString(r.getErrorString());
+			String lox = proxy.getLocator();
+			IParentChildContainer root = null;
+			if (lox.equals(contextLocator))
+				root = (IParentChildContainer)proxy;
+			else {
+				r = database.getNode(contextLocator, credentials);
+				if (r.hasError())
+					result.addErrorString(r.getErrorString());
+				root = (IParentChildContainer)r.getResultObject();
+			}
+			System.out.println("ADDCHILDNODE "+lox+" "+contextLocator+" "+root);
+			root.addToParentChildList(locator);
+			r = database.updateNode((ISubjectProxy)root, true);
+			if (r.hasError())
+				result.addErrorString(r.getErrorString());
+		}
+		
 		return result;
 	}
 }

@@ -15,11 +15,14 @@
  */
 package org.topicquests.ks.cg.api;
 
+import org.topicquests.ks.graph.api.IEdge;
+
 /**
  * 
  * @author park
  * Relationship between this and ITuple???
+ * Not sure about extending IEdge
  */
-public interface ICGRelation {
+public interface ICGRelation extends IEdge {
 
 }

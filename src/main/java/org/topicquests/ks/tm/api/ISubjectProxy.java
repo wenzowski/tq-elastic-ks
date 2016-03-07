@@ -18,17 +18,20 @@ package org.topicquests.ks.tm.api;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
+//import java.util.Map;
+
+
 
 import net.minidev.json.JSONObject;
 
 import org.topicquests.common.api.IResult;
+import org.topicquests.ks.api.IVersionable;
 
 /**
  * @author park
  *
  */
-public interface ISubjectProxy {
+public interface ISubjectProxy extends IVersionable {
 
 	/**
 	 * Do a single update event when changes have been made as compared to
@@ -102,17 +105,6 @@ public interface ISubjectProxy {
 	 */
 	boolean isTuple();
 
-	/**
-	 * SOLR4 does a <code>_version_</code> field
-	 * @param version
-	 */
-	void setVersion(String version);
-	
-	/**
-	 * Return the SOLR4 version as a String
-	 * @return
-	 */
-	String getVersion();
 	
 	/**
 	 *  YYYY-MM-DDThh:mm:ssZ; this is the createdDate
@@ -526,14 +518,14 @@ public interface ISubjectProxy {
 	 * @param relationType if <code>null</code>, returns all relations as JSON strings
 	 * @return does not return <code>null</code>
 	 */
-	List<String> listRelationsByRelationType(String relationType);
+	List<JSONObject> listRelationsByRelationType(String relationType);
 	  
 	/**
 	 * List tuples linked to this node which are restricted (not public)
 	 * @param relationType if <code>null</code>, returns all relations
 	 * @return does not return <code>null</code>
 	 */
-	List<String> listRestrictedRelationsByRelationType(String relationType);
+	List<JSONObject> listRestrictedRelationsByRelationType(String relationType);
 	
 	/////////////////////////////
 	//Pivots: special kinds of tuples
@@ -550,23 +542,14 @@ public interface ISubjectProxy {
 	 * @param relationType
 	 * @return returns a list of strings which are JSON representatinos of {@link IRelationStruct}
 	 */
-	List<String> listPivotsByRelationType(String relationType);
+	List<JSONObject> listPivotsByRelationType(String relationType);
 	
-	List<String> listRestrictedPivotsByRelationType(String relationType);
+	List<JSONObject> listRestrictedPivotsByRelationType(String relationType);
 	/////////////////////////////
 	//Graph
 	/////////////////////////////
 	
-	/**
-	 * 
-	 * @param contextLocator
-	 * @param smallIcon
-	 * @param locator
-	 * @param subject
-	 * @param transcluderLocator can be <code>null</code>
-	 */
-	void addChildNode(String contextLocator, String smallIcon, String locator, String subject, String transcluderLocator);
-	
+
 	/**
 	 * <p>Returns list of childNode objects.<p>
 	 * <p>If <code>contextLocator</code> = <code>null</code>, returns
@@ -575,16 +558,24 @@ public interface ISubjectProxy {
 	 * @param contextLocator <code>null</code> means list all child nodes
 	 * @return a list of JSON strings which are representations of {@link IChildStruct}
 	 */
-	List<String> listChildNodes(String contextLocator);
+	List<JSONObject> listChildNodes(String contextLocator);
 	
-	void addParentNode(String contextLocator, String smallIcon, String locator, String subject);
+	
 	
 	/**
 	 * Return list of parentNode objects
 	 * @param contextLocator <code>null</code> means return all parent nodes
 	 * @return a list of JSON strings which are representations of {@link IChildStruct}
 	 */
-	List<String> listParentNodes(String contextLocator);
+	List<JSONObject> listParentNodes(String contextLocator);
+	
+	/**
+	 * Return a list of all children of this node, if any. Recursively
+	 * descend the children. In fact, all child locators are cached
+	 * in this node.
+	 * @return can return <code>null</code>
+	 */
+	List<String> listParentChildTree();
 	
 	/////////////////////////////
 	//ACL
@@ -611,7 +602,7 @@ public interface ISubjectProxy {
 	 * @param name
 	 * @return can return <code>null</code>
 	 */
-	String getInfoBox(String name);
+	JSONObject getInfoBox(String name);
 	
 	void removeInfoBox(String name);
 	
@@ -619,7 +610,7 @@ public interface ISubjectProxy {
 	 * Return the list of all IInfoBox JSON objects
 	 * @return
 	 */
-	List<String> listInfoBoxes();
+	List<JSONObject> listInfoBoxes();
 	
 	/////////////////////////////
 	//AIRs

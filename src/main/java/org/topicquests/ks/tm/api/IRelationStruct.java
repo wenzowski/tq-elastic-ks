@@ -16,6 +16,8 @@
 
 package org.topicquests.ks.tm.api;
 
+import net.minidev.json.JSONObject;
+
 /**
  * @author park
  * 
@@ -49,5 +51,6 @@ public interface IRelationStruct {
 	void setSourceOrTarget(String sORt);
 	String getSourceOrTarget();
 	
+	JSONObject getData();
 	String toJSON();
 }

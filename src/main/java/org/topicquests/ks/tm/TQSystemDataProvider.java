@@ -62,6 +62,7 @@ public class TQSystemDataProvider implements ITQDataProvider {
 	private ITupleQuery tupleQuery;
 	private VirtualizerHandler mergePerformer;
 	private CredentialUtility credentialUtility;
+	private final String _INDEX = "topics";
 
 	/** We only save public nodes in this cache */
 	private LRUCache nodeCache;
@@ -77,7 +78,7 @@ public class TQSystemDataProvider implements ITQDataProvider {
 		database = provider.getClient();
 		proxyModel = new SubjectProxyModel(environment, this);
 		//interceptor can toss an exception if it has network issues
-		interceptor = new MergeInterceptor();
+		interceptor = new MergeInterceptor(environment);
 		nodeCache = new LRUCache(cachesize);
 		tupleQuery = new TupleQuery(environment, this);
 		credentialUtility = new CredentialUtility(environment);
@@ -183,7 +184,7 @@ public class TQSystemDataProvider implements ITQDataProvider {
 			result = new ResultPojo();
 			result.setResultObject(nx);
 		} else {
-			result = database.getNodeAsJSONObject(locator);
+			result = database.getNodeAsJSONObject(locator, _INDEX);
 			JSONObject jo = (JSONObject)result.getResultObject();
 			System.out.println("GETNODE "+locator+" "+jo);
 			result.setResultObject(null); //default in case bad credentials
@@ -212,7 +213,7 @@ public class TQSystemDataProvider implements ITQDataProvider {
 	public IResult getNodeByURL(String url, ITicket credentials) {
 		IResult result = new ResultPojo();
 		String q = getMatchQuery(ITQCoreOntology.RESOURCE_URL_PROPERTY, url);
-		IResult r = database.listObjectsByQuery(q);
+		IResult r = database.listObjectsByQuery(q, _INDEX);
 		List<JSONObject> l = (List<JSONObject>)r.getResultObject();
 		if (l != null) {
 			JSONObject jo = l.get(0);
@@ -237,7 +238,7 @@ public class TQSystemDataProvider implements ITQDataProvider {
 	 */
 	@Override
 	public IResult putTuple(ITuple tuple, boolean checkVersion) {
-		return putNode(tuple, checkVersion);
+		return putNode(tuple);
 	}
 
 	/* (non-Javadoc)
@@ -253,7 +254,9 @@ public class TQSystemDataProvider implements ITQDataProvider {
 	 */
 	@Override
 	public IResult updateNode(ISubjectProxy node, boolean checkVersion) {
-		return putNode(node, checkVersion);
+		IResult result = database.updateNode(node.getLocator(), _INDEX, 
+				node.getData(), checkVersion);
+		return result;
 	}
 
 	/* (non-Javadoc)
@@ -311,7 +314,7 @@ public class TQSystemDataProvider implements ITQDataProvider {
 		qb.should(qb2);
 		//NOTE we are not crafting start, count here
 		//environment.logDebug("JSONDocStoreTopicMapProvider.existsTupleBySubjectOrObjectAndRelation- "+qb.toString());
-		IResult result =  database.listObjectsByQuery(qb.toString());
+		IResult result =  database.listObjectsByQuery(qb.toString(), _INDEX);
 				//jsonModel.runQuery(TOPIC_INDEX, qb, 0, -1, CORE_TYPE);
 		if (result.getResultObject() != null)
 			result.setResultObject(new Boolean(true));
@@ -325,7 +328,7 @@ public class TQSystemDataProvider implements ITQDataProvider {
 	 */
 	@Override
 	public IResult existsNode(String locator) {
-		IResult result = database.getNodeAsJSONObject(locator);
+		IResult result = database.getNodeAsJSONObject(locator, _INDEX);
 		
 		if (result.getResultObject() == null)
 			result.setResultObject(new Boolean(false));
@@ -380,7 +383,7 @@ public class TQSystemDataProvider implements ITQDataProvider {
 		//first, set not live
 		node.setIsLive(false);
 		//save it
-		IResult r = this.putNode(node, false);
+		IResult r = this.putNode(node);
 		//now, deal with its network
 		//TODO
 		return result;
@@ -390,9 +393,10 @@ public class TQSystemDataProvider implements ITQDataProvider {
 	 * @see org.topicquests.ks.api.ITQDataProvider#putNode(org.topicquests.ks.tm.api.ISubjectProxy, boolean)
 	 */
 	@Override
-	public IResult putNode(ISubjectProxy node, boolean checkVersion) {
-		IResult result = putNodeNoMerge(node, checkVersion);
-		if (result.hasError()) {
+	public IResult putNode(ISubjectProxy node) {
+		IResult result = putNodeNoMerge(node);
+		System.out.println("PUTNODE "+node.getLocator()+" "+result.hasError());
+		if (!result.hasError()) {
 			interceptor.acceptNodeForMerge(node);
 			nodeCache.add(node.getLocator(), node);
 		}
@@ -403,34 +407,9 @@ public class TQSystemDataProvider implements ITQDataProvider {
 	 * @see org.topicquests.ks.api.ITQDataProvider#putNodeNoMerge(org.topicquests.ks.tm.api.ISubjectProxy, boolean)
 	 */
 	@Override
-	public IResult putNodeNoMerge(ISubjectProxy node, boolean checkVersion) {
+	public IResult putNodeNoMerge(ISubjectProxy node) {
 		environment.logDebug("TQSystemDataProvider.putNodeNoMerge- "+node.toJSONString());
-		IResult result = new ResultPojo();
-		boolean versionOk = true; // default
-		if (checkVersion) {
-			//fetch existing node, if available; bypass the cache
-			IResult r = database.getNodeAsJSONObject(node.getLocator());
-			JSONObject jo = (JSONObject)r.getResultObject();
-			result.setResultObject(null); //default in case bad credentials
-			if (jo != null) {
-				ISubjectProxy n = new SubjectProxy(jo);
-				environment.logDebug("TQSystemDataProvider.putNodeNoMerge-1 "+n.toJSONString());
-				//compare version numbers
-				String v = n.getVersion();
-				long vOld = Long.parseLong(v);
-				v = node.getVersion();
-				long vNew = Long.parseLong(v);
-				if (vNew < vOld) {
-					versionOk = false;
-				}
-			}
-		}
-		if (versionOk) {
-			IResult a = database.indexNode(node.getLocator(), node.getData());
-			if (a.hasError())
-				result.addErrorString(a.getErrorString());
-		} else
-			result.addErrorString(IErrorMessages.OPTIMISTIC_LOCK_EXCEPTION);
+		IResult result =database.indexNode(node.getLocator(), _INDEX,  node.getData());
 		return result;
 	}
 
@@ -457,7 +436,7 @@ public class TQSystemDataProvider implements ITQDataProvider {
 		qb.should(qb2);
 		String q = this.createQueryFromQuery(qb2, start, count);
 		//environment.logDebug("JSONDocStoreTopicMapProvider.listNodesByLabelAndType- "+qb.toString());
-		IResult result = database.listObjectsByQuery(q);
+		IResult result = database.listObjectsByQuery(q, _INDEX);
 		if (result.getResultObject() != null) {
 			List<JSONObject> l = (List<JSONObject>)result.getResultObject();
 			int len = l.size();
@@ -489,7 +468,7 @@ public class TQSystemDataProvider implements ITQDataProvider {
 		String labprop = makeField(ITQCoreOntology.LABEL_PROPERTY, language);
 		QueryBuilder qb = QueryBuilders.wildcardQuery(labprop, labelFragment);
 		String q = this.createQueryFromQuery(qb, start, count);
-		IResult result = database.listObjectsByQuery(q);
+		IResult result = database.listObjectsByQuery(q, _INDEX);
 		if (result.getResultObject() != null) {
 			List<JSONObject> l = (List<JSONObject>)result.getResultObject();
 			int len = l.size();
@@ -512,7 +491,7 @@ public class TQSystemDataProvider implements ITQDataProvider {
 		System.out.println("BBB "+qb);
 		String q = this.createQueryFromQuery(qb, start, count);
 		System.out.println("ListNodesByDetailsLike "+q);
-		IResult result = database.listObjectsByQuery(q);
+		IResult result = database.listObjectsByQuery(q, _INDEX);
 		if (result.getResultObject() != null) {
 			List<JSONObject> l = (List<JSONObject>)result.getResultObject();
 			int len = l.size();
@@ -531,7 +510,7 @@ public class TQSystemDataProvider implements ITQDataProvider {
 	public IResult listNodesByQuery(String queryString, int start, int count,
 			ITicket credentials) {
 		String q = this.createQueryFromStringQuery(queryString, start, count);
-		IResult result = database.listObjectsByQuery(q);
+		IResult result = database.listObjectsByQuery(q, _INDEX);
 		if (result.getResultObject() != null) {
 			List<JSONObject> l = (List<JSONObject>)result.getResultObject();
 			int len = l.size();
@@ -569,7 +548,7 @@ public class TQSystemDataProvider implements ITQDataProvider {
 			ITicket credentials) {
 		IResult result = new ResultPojo();
 		String q = this.getMatchQuery(ITQCoreOntology.INSTANCE_OF_PROPERTY_TYPE, typeLocator, start, count);
-		IResult r = database.listObjectsByQuery(q);
+		IResult r = database.listObjectsByQuery(q, _INDEX);
 		List<JSONObject> l = (List<JSONObject>)r.getResultObject();
 		if (l != null) {
 			List<ISubjectProxy>rslt = this.pluckProxies(l, credentials);
@@ -598,7 +577,7 @@ public class TQSystemDataProvider implements ITQDataProvider {
 		qbc.should(qba);
 		qbc.should(qbb);
 		String q = this.createQueryFromQuery(qbc, start, count);
-		IResult result = database.listObjectsByQuery(q);
+		IResult result = database.listObjectsByQuery(q, _INDEX);
 		if (result.getResultObject() != null) {
 			List<JSONObject> l = (List<JSONObject>)result.getResultObject();
 			int len = l.size();
@@ -618,7 +597,7 @@ public class TQSystemDataProvider implements ITQDataProvider {
 			int count, ITicket credentials) {
 		IResult result = new ResultPojo();
 		String q = this.getMatchQuery(ITQCoreOntology.SUBCLASS_OF_PROPERTY_TYPE, superclassLocator, start, count);
-		IResult r = database.listObjectsByQuery(q);
+		IResult r = database.listObjectsByQuery(q, _INDEX);
 		List<JSONObject> l = (List<JSONObject>)r.getResultObject();
 		if (l != null) {
 			List<ISubjectProxy>rslt = this.pluckProxies(l, credentials);
@@ -631,7 +610,7 @@ public class TQSystemDataProvider implements ITQDataProvider {
 	 * @see org.topicquests.ks.api.ITQDataProvider#updateProxyFromJSON(java.lang.String)
 	 */
 	@Override
-	public IResult updateProxyFromJSON(JSONObject nodeJSON) {
+	public IResult updateProxyFromJSON(JSONObject nodeJSON, boolean checkVersion) {
 		IResult result = new ResultPojo();
 		if (nodeJSON == null) {
 			result.addErrorString(IErrorMessages.BAD_JSON_UPDATE_NODE);
@@ -639,14 +618,14 @@ public class TQSystemDataProvider implements ITQDataProvider {
 			//PUNTING at some risk
 			ISubjectProxy p = new SubjectProxy(nodeJSON);
 			p.doUpdate();
-			result = this.putNode(p, true);
+			result = this.updateNode(p, checkVersion);
 			p = null;
 		}
 		return result;
 	}
 
 	@Override
-	public IResult updateProxyFromJSON(String jsonString) {
+	public IResult updateProxyFromJSON(String jsonString, boolean checkVersion) {
 		JSONObject jo = null;
 		try {
 			jo = (JSONObject)new JSONParser(JSONParser.MODE_JSON_SIMPLE).parse(jsonString);
@@ -654,8 +633,9 @@ public class TQSystemDataProvider implements ITQDataProvider {
 			environment.logError(e.getMessage(), e);
 			e.printStackTrace();
 		}
-		return updateProxyFromJSON(jo);
+		return updateProxyFromJSON(jo, checkVersion);
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.topicquests.ks.api.ITQDataProvider#listNodesByTypeAndURL(java.lang.String, java.lang.String, org.topicquests.ks.api.ITicket)
 	 */
@@ -672,7 +652,7 @@ public class TQSystemDataProvider implements ITQDataProvider {
 		qb.should(qb1);
 		qb.should(qb2);
 		String q = this.createQueryFromQuery(qb, start, count);
-		IResult result = database.listObjectsByQuery(q);
+		IResult result = database.listObjectsByQuery(q, _INDEX);
 		if (result.getResultObject() != null) {
 			List<JSONObject> l = (List<JSONObject>)result.getResultObject();
 			int len = l.size();
@@ -689,7 +669,7 @@ public class TQSystemDataProvider implements ITQDataProvider {
 	 */
 	@Override
 	public IResult updateNodeLabel(ISubjectProxy node, String oldLabel,
-			String newLabel, ITicket credentials) {
+			String newLabel, boolean checkVersion, ITicket credentials) {
 		IResult result = new ResultPojo();
 		// TODO Auto-generated method stub
 		return result;
@@ -734,7 +714,7 @@ public class TQSystemDataProvider implements ITQDataProvider {
 	public IResult runQuery(String queryString, int start, int count,
 			ITicket credentials) {
 		String q = this.createQueryFromStringQuery(queryString, start, count);
-		IResult result = database.listObjectsByQuery(q);
+		IResult result = database.listObjectsByQuery(q, _INDEX);
 		if (result.getResultObject() != null) {
 			List<JSONObject> l = (List<JSONObject>)result.getResultObject();
 			int len = l.size();
@@ -874,7 +854,7 @@ public class TQSystemDataProvider implements ITQDataProvider {
 		System.out.println("AAA "+qb1.toString());
 		String q = this.createQueryFromQuery(qb1, start, count);
 		System.out.println("ListNodesByKeyword "+q);
-		IResult result = database.listObjectsByQuery(q);
+		IResult result = database.listObjectsByQuery(q, _INDEX);
 		if (result.getResultObject() != null) {
 			List<JSONObject> l = (List<JSONObject>)result.getResultObject();
 			int len = l.size();
@@ -886,6 +866,11 @@ public class TQSystemDataProvider implements ITQDataProvider {
 		return result;
 	}
 
+	@Override
+	public IResult multiGetNodes(List<String> locators, ITicket credentials) {
+		IResult result = database.multiGetNodes(locators, _INDEX);
+		return null;
+	}
 	/**
 	 * <p>Return <code>1</code> if sufficient <code>credentials</code>
 	 * to allow viewing this <code>node></p>
@@ -899,5 +884,8 @@ public class TQSystemDataProvider implements ITQDataProvider {
 		return credentialUtility.checkCredentials(node, credentials);
 	}
 
+	public void shutDown() {
+		interceptor.shutDown();
+	}
 
 }

@@ -18,6 +18,7 @@ public class ProviderEnvironment {
 	private Map<String,Object>configProps;
 	private Client client;
 
+
 	/**
 	 * 
 	 */
@@ -27,7 +28,7 @@ public class ProviderEnvironment {
 		System.out.println("Client config "+configProps);
 		client = new Client(this);
 	}
-
+	
 	public Client getClient() {
 		return client;
 	}

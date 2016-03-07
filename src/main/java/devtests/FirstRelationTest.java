@@ -50,12 +50,12 @@ public class FirstRelationTest {
 		ISubjectProxy n = proxyModel
 				.newInstanceNode(lox1, type, "My first node", "Hi there", "en", "jackpark", "smallImagePath.png", "largeImagePath.png", false);
 		System.out.println("AAA "+n.toJSONString());
-		IResult r = database.putNode(n, true);
+		IResult r = database.putNode(n);
 		System.out.println("BBB "+r.getErrorString()+" | "+r.getResultObject());
 		ISubjectProxy n1 = proxyModel
 				.newInstanceNode(lox2, type, "My second node", "Back atcha", "en", "jackpark", "smallImagePath.png", "largeImagePath.png", false);
 		System.out.println("CCC "+n1.toJSONString());
-		r = database.putNode(n1, true);
+		r = database.putNode(n1);
 		System.out.println("DDD "+r.getErrorString()+" | "+r.getResultObject());
 		
 		r = proxyModel.relateExistingNodes(n, n1, IRelationsLegend.CAUSES_RELATION_TYPE, "jackpark", "smallImagePath.png", "largeImagePath.png", false, false);

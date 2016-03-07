@@ -15,6 +15,8 @@
  */
 package org.topicquests.ks.tm.api;
 
+import net.minidev.json.JSONObject;
+
 /**
  * @author park
  *
@@ -41,4 +43,5 @@ public interface IChildStruct {
 	
 	String toJSON();
 
+	JSONObject getData();
 }

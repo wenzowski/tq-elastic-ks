@@ -24,6 +24,8 @@ public interface IErrorMessages {
 		INSUFFICIENT_CREDENTIALS	= "InsufficientCredentials",
 		OPTIMISTIC_LOCK_EXCEPTION	= "OptimisticLockException",
 		NODE_REMOVED				= "NodeRemoved",
+		NODE_MISSING				= "NodeMissing",
+		MISSING_VERSION_PROPERTY	= "MissingVersionProperty",
 		//ITQDataProvider.updateProxyFromJSON
 		BAD_JSON_UPDATE_NODE		= "BadJSONUpdateNode";
 

@@ -15,6 +15,8 @@
  */
 package org.topicquests.ks.api;
 
+import java.util.List;
+
 import net.minidev.json.JSONObject;
 
 import org.topicquests.common.api.IResult;
@@ -100,6 +102,15 @@ public interface ITQDataProvider {
 	 */
 	IResult loadTree(String rootNodeLocator, int maxDepth, int start, int count, ITicket credentials);
 
+	/**
+	 * Given a list of <code>locators</code>, return a list of
+	 * {@link JSONObject} nodes
+	 * @param locators
+	 * @param credentials TODO
+	 * @return list of JSONObjects
+	 */
+	IResult multiGetNodes(List<String> locators, ITicket credentials);
+	
 	////////////////////////////////////
 	// PROXIES
 	////////////////////////////////////
@@ -228,18 +239,16 @@ public interface ITQDataProvider {
 	 * <p>Can return an <em>OptimisticLockException</em> error message if version numbers
 	 * are not appropriate.</p>
 	 * @param node
-	 * @param checkVersion
 	 * @return
 	 */
-	IResult putNode(ISubjectProxy node, boolean checkVersion);
+	IResult putNode(ISubjectProxy node);
 	  
 	/**
 	 * Put <code>node</code> in the database. Subject to harvest; no merge performed
 	 * @param node
-	 * @param checkVersion
 	 * @return
 	 */
-	IResult putNodeNoMerge(ISubjectProxy node, boolean checkVersion);	
+	IResult putNodeNoMerge(ISubjectProxy node);	
 	
 
 	/**
@@ -371,11 +380,12 @@ public interface ITQDataProvider {
 	 * or an edited existing node.</p>
 	 * <p><code>nodeJSON</code> <em>must</em> be a complete proxy representation.</p>
 	 * @param nodeJSON
+	 * @param checkVersion TODO
 	 * @return can return an OptimisticLock exception
 	 */
-	IResult updateProxyFromJSON(JSONObject nodeJSON);
+	IResult updateProxyFromJSON(JSONObject nodeJSON, boolean checkVersion);
 
-	IResult updateProxyFromJSON(String jsonString);
+	IResult updateProxyFromJSON(String jsonString, boolean checkVersion);
 	/**
 	 * A <code>url</code> is like a PSI: it's an identity property
 	 * @param url
@@ -394,10 +404,11 @@ public interface ITQDataProvider {
 	 * @param node
 	 * @param oldLabel
 	 * @param newLabel
+	 * @param checkVersion TODO
 	 * @param credentials
 	 * @return
 	 */
-	IResult updateNodeLabel(ISubjectProxy node, String oldLabel, String newLabel, ITicket credentials);
+	IResult updateNodeLabel(ISubjectProxy node, String oldLabel, String newLabel, boolean checkVersion, ITicket credentials);
 
 	////////////////////////////////////
 	// MERGE
@@ -440,4 +451,5 @@ public interface ITQDataProvider {
 	 */
 	IResult runQuery(String queryString, int start, int count, ITicket credentials);
 
+	void shutDown();
 }
