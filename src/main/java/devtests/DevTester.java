@@ -27,10 +27,10 @@ public class DevTester {
 	public DevTester() {
 		System.out.println("DevTesterStarting");
 		//new FirstTest();
-		new BootTest();
-		new FirstRelationTest();
-		new SameLabelTest();
-		new MultiGetTest();
+		//new BootTest();
+		//new FirstRelationTest();
+		//new SameLabelTest();
+		//new MultiGetTest();
 		new ParentChildTest();
 		System.out.println("DevTesterDone");
 	}

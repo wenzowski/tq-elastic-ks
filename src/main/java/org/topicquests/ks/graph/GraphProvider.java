@@ -53,7 +53,7 @@ public class GraphProvider implements IGraphProvider {
 	@Override
 	public IResult updateVertex(IVertex v, boolean checkVersion) {
 		removeVertexFromCache(v.getId());
-		return elasticDatabase.updateNode(v.getId(), VERTEX_INDEX, v.getData(), checkVersion);
+		return elasticDatabase.updateFullNode(v.getId(), VERTEX_INDEX, v.getData(), checkVersion);
 	}
 
 	private IResult indexVertex(IVertex v) {
@@ -79,7 +79,7 @@ public class GraphProvider implements IGraphProvider {
 	@Override
 	public IResult updateEdge(IEdge e, boolean checkVersion) {
 		removeEdgeFromCache(e.getId());
-		return elasticDatabase.updateNode(e.getId(), EDGE_INDEX, e.getData(), checkVersion);
+		return elasticDatabase.updateFullNode(e.getId(), EDGE_INDEX, e.getData(), checkVersion);
 	}
 
 	/* (non-Javadoc)
