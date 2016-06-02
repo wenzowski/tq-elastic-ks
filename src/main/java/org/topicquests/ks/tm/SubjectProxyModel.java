@@ -17,6 +17,7 @@ package org.topicquests.ks.tm;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -292,7 +293,7 @@ public class SubjectProxyModel implements ISubjectProxyModel {
 			boolean isPrivate) {
 		IResult result = new ResultPojo();
 		String signature = sourceNode.getLocator()+relationTypeLocator+targetNode.getLocator();
-		ITuple t = (ITuple)this.newInstanceNode(signature, relationTypeLocator, 
+		ITuple t = (ITuple)this.newInstanceNode(signature, relationTypeLocator, signature,
 				sourceNode.getLocator()+" "+relationTypeLocator+" "+targetNode.getLocator(), "en", userId, smallImagePath, largeImagePath, isPrivate);
 		t.setIsTransclude(isTransclude);
 		t.setObject(targetNode.getLocator());
@@ -386,11 +387,19 @@ public class SubjectProxyModel implements ISubjectProxyModel {
 	private List<String> listTransitiveClosure(String parentLocator) {
 		IResult x = database.getNode(parentLocator, credentials);
 		ISubjectProxy n = (ISubjectProxy)x.getResultObject();
-		List<String>result = null;
-		if (n != null)
-			result  = n.listTransitiveClosure();
+		List<String>result = new ArrayList<String>();
+		if (n != null) {
+			//clone the list
+			List<String> temp  = n.listTransitiveClosure();
+			if (temp != null) {
+				Iterator<String>itr = temp.iterator();
+				while (itr.hasNext())
+					result.add(itr.next());
+			}
+		}
 		if (result == null)
-			result = new ArrayList<String>();
+			
+		environment.logDebug("SubjectProxyModel.listTransitiveClosure "+parentLocator+" "+result);
 		return result;
 	}
 

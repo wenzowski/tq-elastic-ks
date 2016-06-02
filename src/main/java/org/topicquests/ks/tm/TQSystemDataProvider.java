@@ -254,6 +254,7 @@ public class TQSystemDataProvider implements ITQDataProvider {
 	 */
 	@Override
 	public IResult updateNode(ISubjectProxy node, boolean checkVersion) {
+		environment.logDebug("TQSystemDataProvider.updateNode "+node.toJSONString());
 		IResult result = database.updateFullNode(node.getLocator(), _INDEX, 
 				node.getData(), checkVersion);
 		return result;
