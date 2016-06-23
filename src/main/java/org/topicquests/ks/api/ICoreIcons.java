@@ -46,6 +46,8 @@ public interface ICoreIcons {
 		CON_SM				= "/images/ibis/minus_sm.png",
 		MAP					= "/images/ibis/map.png",
 		MAP_SM				= "/images/ibis/map_sm.png",
+		NOTE				= "/images/ibis/note.png",
+		NOTE_SM				= "/images/ibis/note_sm.png",
 		CHALLENGE			= "/images/ibis/challenge.png",
 		CHALLENGE_SM		= "/images/ibis/challenge_sm.png",
 		SOLUTION			= "/images/ibis/decision.png",

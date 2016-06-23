@@ -16,11 +16,13 @@
 package org.topicquests.ks.tm;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
 
 import net.minidev.json.JSONObject;
 
@@ -397,9 +399,6 @@ public class SubjectProxyModel implements ISubjectProxyModel {
 					result.add(itr.next());
 			}
 		}
-		if (result == null)
-			
-		environment.logDebug("SubjectProxyModel.listTransitiveClosure "+parentLocator+" "+result);
 		return result;
 	}
 
