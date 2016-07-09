@@ -25,6 +25,8 @@
 	     name is the index; value is which mappings file to use -->
 	<list name="IndexNames">
 		<parameter name="topics" value = "mappings.json" />
+		<parameter name="vertices" value = "graph.json" />
+		<parameter name="edges"	  value = "graph.json" />
 	</list>
 
 </properties>
