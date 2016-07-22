@@ -6,7 +6,7 @@
                 "type": "string",
                 "store": true
             },
-            "inOf" {
+            "inOf": {
                 "index": "not_analyzed",
                 "type": "string",
                 "store": true
