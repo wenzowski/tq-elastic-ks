@@ -15,14 +15,23 @@ import org.topicquests.common.api.IResult;
 public interface IGraphProvider {
 
 	/**
+	 * This version goes to the default graph index
+	 * @return
+	 */
+	IVertex newVertex();
+	
+	IVertex newVertex(String vIndex, String eIndex);
+	
+	/**
 	 * When an {@link IVertex} is fetched, must populate
 	 * its edges;
 	 * @param id
+	 * @param isPopulated TODO
 	 * @return
 	 */
-	IResult getVertex(String id);
+	IResult getVertex(String id, boolean isPopulated);
 	
-	IResult getVertex(String id, String vIndex, String eIndex);
+	IResult getVertex(String id, String vIndex, String eIndex, boolean isPopulated);
 	
 	/**
 	 * 
@@ -40,7 +49,7 @@ public interface IGraphProvider {
 	 */
 	IResult populateVertex(IVertex v);
 	
-	IResult populateVertex(IVertex v, String eIndex);
+	//IResult populateVertex(IVertex v, String vIndex, String eIndex);
 	
 	/////////////////////////////
 	// TODO
@@ -54,7 +63,7 @@ public interface IGraphProvider {
 	 */
 	IResult updateVertex(IVertex v, boolean checkVersion);
 	
-	IResult updateVertex(IVertex v, String vIndex, boolean checkVersion);
+	//IResult updateVertex(IVertex v, String vIndex, boolean checkVersion);
 	
 	/**
 	 * Provide the ability to update an {@link Edge}
@@ -64,7 +73,7 @@ public interface IGraphProvider {
 	 */
 	IResult updateEdge(IEdge e, boolean checkVersion);
 	
-	IResult updateEdge(IEdge e, String eIndex, boolean checkVersion);
+	//IResult updateEdge(IEdge e, String eIndex, boolean checkVersion);
 	
 	/**
 	 * Extended ability to create a {@link Vertex} with <code>properties</code>
@@ -73,7 +82,7 @@ public interface IGraphProvider {
 	 */
 	IResult addVertex(IVertex v);
 	
-	IResult addVertex(IVertex v, String vIndex);
+	//IResult addVertex(IVertex v, String vIndex);
 	
 	/**
 	 * Extended ability to create an {@link Edge} with <code>properties</code>
@@ -86,8 +95,8 @@ public interface IGraphProvider {
 	IResult addEdge(String id, IVertex outVertex, IVertex inVertex,
 			String label);
 	
-	IResult addEdge(String id, IVertex outVertex, IVertex inVertex, 
-			String label, String vIndex, String eIndex);
+	//IResult addEdge(String id, IVertex outVertex, IVertex inVertex, 
+	//		String label, String vIndex, String eIndex);
 	
 	void removeVertexFromCache(String vertexId);
 

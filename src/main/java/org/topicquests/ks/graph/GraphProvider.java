@@ -52,19 +52,24 @@ public class GraphProvider implements IGraphProvider {
 	 */
 	@Override
 	public IResult updateVertex(IVertex v, boolean checkVersion) {
-		return updateVertex(v, VERTEX_INDEX, checkVersion);
+		return updateVertex(v, v.getVertexIndex(), checkVersion);
 	}
 
 
-	@Override
-	public IResult updateVertex(IVertex v, String vIndex, boolean checkVersion) {
+	
+	IResult updateVertex(IVertex v, String vIndex, boolean checkVersion) {
 		removeVertexFromCache(v.getId());
-		return elasticDatabase.updateFullNode(v.getId(), vIndex, v.getData(), checkVersion);
+		JSONObject jo = v.getData();
+		jo.remove(IGraphOntology.OUT_EDGE_LIST_PROPERTY);
+		jo.remove(IGraphOntology.IN_EDGE_LIST_PROPERTY);
+		System.out.println("UPDATEVERTEX "+jo.keySet()+" "+vIndex);
+		return elasticDatabase.updateFullNode(v.getId(), vIndex, jo, checkVersion);
 	}
 
 
 	private IResult indexVertex(IVertex v, String vIndex) {
 		JSONObject jo = v.getData();
+		//FIRST, strip edges off since their endpoints might change
 		jo.remove(IGraphOntology.OUT_EDGE_LIST_PROPERTY);
 		jo.remove(IGraphOntology.IN_EDGE_LIST_PROPERTY);
 		System.out.println("INDEXING V "+jo.toJSONString());
@@ -80,18 +85,22 @@ public class GraphProvider implements IGraphProvider {
 		IResult result = elasticDatabase.indexNode(e.getId(), eIndex, jo);
 		return result;	
 	}
+	
 	/* (non-Javadoc)
 	 * @see org.topicquests.hyperbrane.graph.api.IGraphProvider#updateEdge(org.topicquests.hyperbrane.graph.api.IEdge)
 	 */
 	@Override
 	public IResult updateEdge(IEdge e, boolean checkVersion) {
-		return updateEdge(e, EDGE_INDEX, checkVersion);
+		return updateEdge(e, e.getEdgeIndex(), checkVersion);
 	}
 
-	@Override
-	public IResult updateEdge(IEdge e, String eIndex, boolean checkVersion) {
+	
+	IResult updateEdge(IEdge e, String eIndex, boolean checkVersion) {
 		removeEdgeFromCache(e.getId());
-		return elasticDatabase.updateFullNode(e.getId(), eIndex, e.getData(), checkVersion);
+		JSONObject jo = e.getData();
+		jo.remove(IGraphOntology.OUT_VERTEX_PROPERTY);
+		jo.remove(IGraphOntology.IN_VERTEX_PROPERTY);
+		return elasticDatabase.updateFullNode(e.getId(), eIndex, jo, checkVersion);
 	}
 
 	/* (non-Javadoc)
@@ -99,14 +108,9 @@ public class GraphProvider implements IGraphProvider {
 	 */
 	@Override
 	public IResult addVertex(IVertex v) {
-		return indexVertex(v, VERTEX_INDEX);
+		return indexVertex(v, v.getVertexIndex());
 	}
 
-
-	@Override
-	public IResult addVertex(IVertex v, String vIndex) {
-		return indexVertex(v, vIndex);
-	}
 
 	/* (non-Javadoc)
 	 * @see org.topicquests.hyperbrane.graph.api.IGraphProvider#addEdge(java.lang.String, org.topicquests.hyperbrane.graph.api.IVertex, org.topicquests.hyperbrane.graph.api.IVertex, java.lang.String, net.minidev.json.JSONObject)
@@ -114,24 +118,25 @@ public class GraphProvider implements IGraphProvider {
 	@Override
 	public IResult addEdge(String id, IVertex outVertex, IVertex inVertex,
 			String label) {
-		return addEdge(id, outVertex, inVertex, label, VERTEX_INDEX, EDGE_INDEX);
+		return addEdge(id, outVertex, inVertex, label, outVertex.getVertexIndex(), outVertex.getEdgeIndex());
 	}
 
-	@Override
-	public IResult addEdge(String id, IVertex outVertex, IVertex inVertex, String label, String vIndex, String eIndex) {
-		IEdge e = new GraphEdge();
+	
+	IResult addEdge(String id, IVertex outVertex, IVertex inVertex, String label, String vIndex, String eIndex) {
+		IEdge e = new GraphEdge(vIndex, eIndex);
 		e.setLabel(label);
 		e.setId(id);
 		e.setVersion(Long.toString(System.currentTimeMillis()));
 		e.setVertex(inVertex, IGraphOntology.DIRECTION_IN);
 		e.setVertex(outVertex, IGraphOntology.DIRECTION_OUT);
-//		System.out.println("ADDINGEDGE0 "+e.toJSONString());
+		JSONObject jo = (JSONObject)e.getData().clone();
+		System.out.println("ADDINGEDGE0 "+e.toJSONString());
 		inVertex.addEdge(IGraphOntology.DIRECTION_OUT, e);
-		inVertex.setVersion(Long.toString(System.currentTimeMillis()));
-//		System.out.println("ADDINGEDGE1 "+inVertex.toJSONString());
-		outVertex.addEdge(IGraphOntology.DIRECTION_IN, e);
-		outVertex.setVersion(Long.toString(System.currentTimeMillis()));
-//		System.out.println("ADDINGEDGE2 "+outVertex.toJSONString());
+		inVertex.doUpdate();
+		System.out.println("ADDINGEDGE1 "+inVertex.toJSONString());
+		outVertex.addEdge(IGraphOntology.DIRECTION_IN, new GraphEdge(jo));
+		outVertex.doUpdate();
+		System.out.println("ADDINGEDGE2 "+outVertex.toJSONString());
 		IResult result = new ResultPojo();
 		IResult r = this.updateVertex(inVertex, vIndex, true);
 		if (r.hasError())
@@ -147,42 +152,67 @@ public class GraphProvider implements IGraphProvider {
 	}
 	
 	@Override
-	public IResult getVertex(String id) {
-		return getVertex(id, VERTEX_INDEX, EDGE_INDEX);
+	public IResult getVertex(String id, boolean isPopulated) {
+		return getVertex(id, VERTEX_INDEX, EDGE_INDEX, isPopulated);
 	}
 	
 	@Override
-	public IResult getVertex(String id, String vIndex, String eIndex) {
-		IResult result = null;
-		IVertex v = (IVertex)vertexCache.get(id);
-		if (v != null) {
-			result = new ResultPojo();
-			result.setResultObject(v);
-			return result;
-		}
-		result = _getVertex(id, vIndex);
-		JSONObject jo = (JSONObject)result.getResultObject();
-		if (jo != null) {
+	public IResult getVertex(String id, String vIndex, String eIndex, boolean isPopulated) {
+		IResult result = new ResultPojo();
+		IVertex v = null; //(IVertex)vertexCache.get(id);
+		JSONObject jo = null;
+		if (v == null) {
+			IResult r = _getVertex(id, vIndex);
+			jo = (JSONObject)r.getResultObject();
+			
+			if (jo == null) {
+				return result; // null
+			}
+			System.out.println("GET "+id+" "+jo.keySet());
+			///////////////////////////////
+			//TODO
+			// THERE is a bug in which InEdges are showing up in the
+			// Client's cache -- NOT in the index.
+			// LOTS of traces do not show how it is getting there, so
+			// we do this cheat:
+			//   we clear the cache and try again to force a fetch
+			//   from the index
+			///////////////////////////////
+			Object o = jo.get(IGraphOntology.IN_EDGE_LIST_PROPERTY);
+			Object o1 = jo.get(IGraphOntology.OUT_EDGE_LIST_PROPERTY);
+			if (o != null || o1 != null) {
+				System.out.println("GETTTT bad");
+				elasticDatabase.clearCache();
+				r = _getVertex(id, vIndex);
+					jo = (JSONObject)r.getResultObject();
+			}
 			v = new GraphVertex(jo);
-			vertexCache.add(id, v);
+		} else {
+			jo = v.getData();
+		}
+		//System.out.println("GET1 "+id+" "+jo);
+		if (isPopulated) {
 			String eid;
 			Iterator<String>itr;
 			List<String> edges = (List<String>)jo.get(IGraphOntology.IN_EDGE_ID_LIST_PROPERTY_TYPE);
+			System.out.println("INS "+edges);
 			if (edges != null)
-				grabEdges(result, IGraphOntology.DIRECTION_IN, v, edges, eIndex);
+				grabEdges(result, IGraphOntology.DIRECTION_IN, v, edges, vIndex, eIndex);
 			edges = (List<String>)jo.get(IGraphOntology.OUT_EDGE_ID_LIST_PROPERTY_TYPE);
+			System.out.println("OUTS "+edges);
 			if (edges != null)
-				grabEdges(result, IGraphOntology.DIRECTION_OUT, v, edges, eIndex);
+				grabEdges(result, IGraphOntology.DIRECTION_OUT, v, edges, vIndex, eIndex);
 			result.setResultObject(v);
 		}
-		return result;	}
+		System.out.println("GET+ "+id);
+		return result;	
+	}
 
 	public IResult populateVertex(IVertex v) {
-		return populateVertex(v, EDGE_INDEX);
+		return populateVertex(v, v.getVertexIndex(), v.getEdgeIndex());
 	}
 	
-	@Override
-	public IResult populateVertex(IVertex v, String eIndex) {
+	IResult populateVertex(IVertex v, String vIndex, String eIndex) {
 		IResult result = new ResultPojo();
 		System.out.println("PopulateVertex "+v.toJSONString());
 		Iterator<String> itr;
@@ -191,13 +221,13 @@ public class GraphProvider implements IGraphProvider {
 		if (ite == null) { // alredy populated?
 			edges = (List<String>)v.getData().get(IGraphOntology.IN_EDGE_ID_LIST_PROPERTY_TYPE);
 			if (edges != null)
-				grabEdges(result, IGraphOntology.DIRECTION_IN, v, edges, eIndex);
+				grabEdges(result, IGraphOntology.DIRECTION_IN, v, edges, vIndex, eIndex);
 		}
 		ite = v.listEdges(IGraphOntology.DIRECTION_OUT, null);
 		if (ite == null) { // already populated?
 			edges = (List<String>)v.getData().get(IGraphOntology.OUT_EDGE_ID_LIST_PROPERTY_TYPE);
 			if (edges != null)
-				grabEdges(result, IGraphOntology.DIRECTION_OUT, v, edges, eIndex);
+				grabEdges(result, IGraphOntology.DIRECTION_OUT, v, edges, vIndex, eIndex);
 		}
 		result.setResultObject(v);
 		//return it to the cache
@@ -212,22 +242,29 @@ public class GraphProvider implements IGraphProvider {
 	 * @param direction
 	 * @param v
 	 * @param edges
+	 * @param vIndex TODO
 	 * @param eIndex 
 	 */
-	private void grabEdges(IResult r, String direction, IVertex v, List<String>edges, String eIndex) {
-		String eid;
-		Iterator<String>itr = edges.iterator();
-		IResult rx;
-		IEdge ex;
-		while (itr.hasNext()) {
-			eid = itr.next();
-			rx = getEdge(eid);
-			if (rx.hasError())
-				r.addErrorString(rx.getErrorString());
-			ex = (IEdge)rx.getResultObject();
-			if (ex != null)
-				v.addEdge(direction, ex);
+	private void grabEdges(IResult r, String direction, IVertex v, List<String>edges, String vIndex, String eIndex) {
+		System.out.println("GEDGES "+edges);
+		Iterator<IEdge> l = v.listEdges(direction, null);
+		if (l == null) {
+			String eid;
+			Iterator<String>itr = edges.iterator();
+			IResult rx;
+			IEdge ex;
+			while (itr.hasNext()) {
+				eid = itr.next();
+				rx = getEdge(eid, vIndex, eIndex);
+				if (rx.hasError())
+					r.addErrorString(rx.getErrorString());
+				ex = (IEdge)rx.getResultObject();
+				System.out.println("GEDGES2 "+ex.toJSONString());			
+				if (ex != null)
+					v.addEdge(direction, ex);
+			}
 		}
+		System.out.println("GEDGES+");
 	}
 	/////////////////////////////////////
 	// ISSUE:
@@ -259,22 +296,35 @@ public class GraphProvider implements IGraphProvider {
 
 	@Override
 	public IResult getEdge(String id, String vIndex, String eIndex) {
-		IResult result = null;
-		IEdge edx = (IEdge)edgeCache.get(id);
-		if (edx != null) {
-			result = new ResultPojo();
-		} else {
-			result = elasticDatabase.getNodeAsJSONObject(id, eIndex);
-			JSONObject jo = (JSONObject)result.getResultObject();
+		IResult result =  new ResultPojo();;
+		IEdge edx = null; //(IEdge)edgeCache.get(id);
+		System.out.println("GetEdge "+id+" "+edx);
+		//elasticDatabase.clearCache();
+		if (edx == null) {
+			IResult r = elasticDatabase.getNodeAsJSONObject(id, eIndex);
+			////////////////////
+			//TODO
+			// see getVertex hack
+			///////////////////
+			JSONObject jo = (JSONObject)r.getResultObject();
+			Object o = jo.get(IGraphOntology.OUT_VERTEX_PROPERTY);
+			Object o1 = jo.get(IGraphOntology.IN_VERTEX_PROPERTY);
+			if (o != null || o1 != null) {
+				System.out.println("GEEE bad");
+				elasticDatabase.clearCache();
+				r = elasticDatabase.getNodeAsJSONObject(id, eIndex);
+				jo = (JSONObject)r.getResultObject();
+			}
+			System.out.println("GetEdge-1"+jo);
 			if (jo != null) {
 				edx = new GraphEdge(jo);
-				IResult r = populateEdge(edx, vIndex);
+				r = populateEdge(edx, vIndex);
 				if (r.hasError())
 					result.addErrorString(r.getErrorString());
 				edgeCache.add(id, edx);
 			}
-			
 		}
+		System.out.println("GetEdge+ "+edx.getData().keySet());		
 		result.setResultObject(edx);
 		return result;
 	}
@@ -297,6 +347,16 @@ public class GraphProvider implements IGraphProvider {
 		if (jx != null)
 			e.setVertex(new GraphVertex(jx), IGraphOntology.DIRECTION_OUT);
 		return result;
+	}
+
+	@Override
+	public IVertex newVertex() {
+		return newVertex(VERTEX_INDEX, EDGE_INDEX);
+	}
+
+	@Override
+	public IVertex newVertex(String vIndex, String eIndex) {
+		return new GraphVertex(vIndex, eIndex);
 	}
 
 

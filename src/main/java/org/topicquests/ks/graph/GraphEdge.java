@@ -22,8 +22,10 @@ public class GraphEdge implements IEdge {
 	/**
 	 * 
 	 */
-	public GraphEdge() {
+	public GraphEdge(String vIndex, String eIndex) {
 		data = new JSONObject();
+		this.setVertexIndex(vIndex);
+		this.setEdgeIndex(eIndex);
 	}
 
 	public GraphEdge(JSONObject jo) {
@@ -114,19 +116,21 @@ public class GraphEdge implements IEdge {
 	 */
 	@Override
 	public IElement getVertex(String direction) {
+		JSONObject jo;
 		if (direction.equals(IGraphOntology.DIRECTION_IN))
-			return (IVertex)data.get(IGraphOntology.IN_VERTEX_PROPERTY);
+			jo = (JSONObject)data.get(IGraphOntology.IN_VERTEX_PROPERTY);
 		else
-			return (IVertex)data.get(IGraphOntology.OUT_VERTEX_PROPERTY);
+			jo = (JSONObject)data.get(IGraphOntology.OUT_VERTEX_PROPERTY);
+		return new GraphVertex(jo);
 	}
 	
 	@Override
 	public void setVertex(IElement v, String direction) {
 		if (direction.equals(IGraphOntology.DIRECTION_IN)) {
-			data.put(IGraphOntology.IN_VERTEX_PROPERTY, v);
+			data.put(IGraphOntology.IN_VERTEX_PROPERTY, v.getData());
 			data.put(IGraphOntology.IN_VERTEX_ID_PROPERTY_TYPE, v.getId());
 		} else {
-			data.put(IGraphOntology.OUT_VERTEX_PROPERTY, v);
+			data.put(IGraphOntology.OUT_VERTEX_PROPERTY, v.getData());
 			data.put(IGraphOntology.OUT_VERTEX_ID_PROPERTY_TYPE, v.getId());			
 		}
 	}
@@ -153,6 +157,27 @@ public class GraphEdge implements IEdge {
 	@Override
 	public void doUpdate() {
 		this.setVersion(Long.toString(System.currentTimeMillis()));
+	}
+
+	@Override
+	public void setVertexIndex(String index) {
+		data.put(VERTEX_INDEX_PROP, index);
+
+	}
+
+	@Override
+	public String getVertexIndex() {
+		return (String)data.getAsString(VERTEX_INDEX_PROP);
+	}
+
+	@Override
+	public void setEdgeIndex(String index) {
+		data.put(EDGE_INDEX_PROP, index);
+	}
+
+	@Override
+	public String getEdgeIndex() {
+		return (String)data.getAsString(EDGE_INDEX_PROP);
 	}
 
 }

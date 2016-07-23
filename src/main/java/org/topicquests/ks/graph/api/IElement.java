@@ -12,7 +12,16 @@ import net.minidev.json.JSONObject;
  *
  */
 public interface IElement {
+	public static final String
+		VERTEX_INDEX_PROP	="vindx",
+		EDGE_INDEX_PROP		= "eindx";
 	
+	void setVertexIndex(String index);
+	String getVertexIndex();
+	
+	void setEdgeIndex(String index);
+	String getEdgeIndex();
+
 	String getId();
 	
 	void setId(String id);

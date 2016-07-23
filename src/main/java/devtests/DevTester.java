@@ -31,7 +31,10 @@ public class DevTester {
 		//new FirstRelationTest();
 		//new SameLabelTest();
 		//new MultiGetTest();
-		new ParentChildTest();
+		//new ParentChildTest();
+		new FirstGraphTest();
+		//new JSONTest();
+		new GraphTest2();
 		System.out.println("DevTesterDone");
 	}
 

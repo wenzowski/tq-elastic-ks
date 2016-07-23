@@ -3,6 +3,8 @@
  */
 package org.topicquests.ks.graph.api;
 
+import org.topicquests.ks.api.ITQCoreOntology;
+
 /**
  * @author park
  *
@@ -11,16 +13,17 @@ public interface IGraphOntology {
 	public static final String
 		ID_PROPERTY 								= "id",
 		LABEL_PROPERTY								= "label",
-		IN_VERTEX_ID_PROPERTY_TYPE					="InVertexId",
-		OUT_VERTEX_ID_PROPERTY_TYPE					="OutVertexId",
+		IN_VERTEX_ID_PROPERTY_TYPE					= "InVertexId",
+		OUT_VERTEX_ID_PROPERTY_TYPE					= "OutVertexId",
 		IN_EDGE_ID_LIST_PROPERTY_TYPE				= "inEdgeIdList",
 		OUT_EDGE_ID_LIST_PROPERTY_TYPE				= "outEdgeIdList",
-		VERSION_PROPERTY							= "vers",
+		VERSION_PROPERTY							= ITQCoreOntology.VERSION,
 		//These are the actual vertices of an edge
 		// loaded when edge is fetched
 		IN_VERTEX_PROPERTY							= "InVert",
 		OUT_VERTEX_PROPERTY							= "OutVert",
-		//These must be loaded
+		//These must be loaded, they are not persisted because
+		// vertex definitions are dynamic
 		IN_EDGE_LIST_PROPERTY						= "InEdges",
 		OUT_EDGE_LIST_PROPERTY						= "OutEdges";
 	
