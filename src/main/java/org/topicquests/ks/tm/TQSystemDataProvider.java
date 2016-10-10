@@ -168,7 +168,7 @@ public class TQSystemDataProvider implements ITQDataProvider {
 		root.setNodeLabel(label);
 		result.setResultObject(root);
 		//now populate its child nodes
-		recursiveWalkDownTree(result,root,maxDepth,maxDepth,start,count,credentials);
+		recursiveWalkDownTree(result, root, maxDepth, maxDepth, start, count, credentials);
 		//environment.logDebug("JSONDocStoreTopicMapProvider.loadTree "+rootNodeLocator+" "+root.getSubclassCount()+" "+root.getInstanceCount());
 		return result;
 	}
@@ -547,7 +547,9 @@ public class TQSystemDataProvider implements ITQDataProvider {
 	public IResult listInstanceNodes(String typeLocator, int start, int count,
 			ITicket credentials) {
 		IResult result = new ResultPojo();
-		String q = this.getMatchQuery(ITQCoreOntology.INSTANCE_OF_PROPERTY_TYPE, typeLocator, start, count);
+		QueryBuilder qb= startKeywordQuery(ITQCoreOntology.INSTANCE_OF_PROPERTY_TYPE, typeLocator);
+		String q = this.createQueryFromQuery(qb, start, count);
+		//String q = this.getMatchQuery(ITQCoreOntology.INSTANCE_OF_PROPERTY_TYPE, typeLocator, start, count);
 		IResult r = database.listObjectsByQuery(q, _INDEX);
 		List<JSONObject> l = (List<JSONObject>)r.getResultObject();
 		if (l != null) {
@@ -596,7 +598,9 @@ public class TQSystemDataProvider implements ITQDataProvider {
 	public IResult listSubclassNodes(String superclassLocator, int start,
 			int count, ITicket credentials) {
 		IResult result = new ResultPojo();
+		//TODO should be TermQuery except that TermQuery fails where matchquery works
 		String q = this.getMatchQuery(ITQCoreOntology.SUBCLASS_OF_PROPERTY_TYPE, superclassLocator, start, count);
+		System.out.println("QUERY "+q);
 		IResult r = database.listObjectsByQuery(q, _INDEX);
 		List<JSONObject> l = (List<JSONObject>)r.getResultObject();
 		if (l != null) {
@@ -725,6 +729,20 @@ public class TQSystemDataProvider implements ITQDataProvider {
 		}
 		return result;
 	}
+	
+	@Override
+	public IResult executeQueryBuilder(SearchSourceBuilder qb, ITicket credentials)  {
+		IResult result = database.listObjectsByQuery(qb.toString(), _INDEX);
+		if (result.getResultObject() != null) {
+			List<JSONObject> l = (List<JSONObject>)result.getResultObject();
+			int len = l.size();
+			if (len > 0) {
+				List<ISubjectProxy>rslt = this.pluckProxies(l, credentials);;
+				result.setResultObject(rslt);
+			}
+		}
+		return result;
+	}
 /////////////////////////////////////////
 	
 	private String getMatchQuery(String key, String value) {
@@ -767,6 +785,16 @@ public class TQSystemDataProvider implements ITQDataProvider {
 		return searchSourceBuilder.toString();
 	}
 	
+	private String getTermQuery(String key, String value, int start, int count) {
+		SearchSourceBuilder searchSourceBuilder = new SearchSourceBuilder();
+		searchSourceBuilder.query(QueryBuilders.termQuery(key, value));
+		searchSourceBuilder.from(start);
+		if (count > -1)
+			searchSourceBuilder.size(count);
+		String q = searchSourceBuilder.toString();
+//		System.out.println("GETMATCHQUERY "+q);
+		return q;
+	}
 	/**
 	 * <p>The {@link INode} implementation uses this to calculate
 	 * which actual label or details field to use depending on language.
@@ -800,6 +828,7 @@ public class TQSystemDataProvider implements ITQDataProvider {
 
 	private void recursiveWalkDownTree(IResult result, ITreeNode root, 
 			int maxDepth, int curDepth, int start, int count, ITicket credentials) {
+		System.out.println("RECURSIVEWALK "+root.getNodeLocator()+" "+loopStopper);
 		//stopping rule
 		if (curDepth == 0)
 			return;

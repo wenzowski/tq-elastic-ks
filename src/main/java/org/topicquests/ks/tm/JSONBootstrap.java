@@ -58,19 +58,20 @@ public class JSONBootstrap {
 	}
 
 	public IResult bootstrap() {
-		//environment.logDebug("JSONBootstrap- ");
+		System.out.println("JSONBootstrap- ");
+		environment.logDebug("JSONBootstrap- ");
 		IResult result = new ResultPojo();
-		IResult r; // = database.getNode(ITopicQuestsOntology.TYPE_TYPE, credentials);
-		//if (r.hasError())
-		//	result.addErrorString(r.getErrorString());
-		//environment.logDebug("JSONBootstrap-1 "+r.hashCode()+" "+r.getResultObject());
-	//	if (r.getResultObject() == null) {
+		IResult r = database.getNode(ITQCoreOntology.TYPE_TYPE, credentials);
+		if (r.hasError())
+			result.addErrorString(r.getErrorString());
+		environment.logDebug("JSONBootstrap-1 "+r.getErrorString()+" | "+r.getResultObject());
+		if (r.getResultObject() == null) {
 			File dir = new File(path);
 			System.out.println("JSONBOOTSTRAP.bootstrap "+dir.getAbsolutePath());
 			File files [] = dir.listFiles();
 			int len = files.length;
 			File f;
-		//	r = null;
+			r = null;
 			for (int i=0;i<len;i++) {
 				f = files[i];
 				System.out.println(f.getAbsolutePath());
@@ -80,7 +81,10 @@ public class JSONBootstrap {
 						result.addErrorString(r.getErrorString());
 				}
 			}
-	//	}
+		} else {
+			ISubjectProxy p = (ISubjectProxy)r.getResultObject();
+			System.out.println("FOO "+p.toJSONString());
+		}
 		return result;
 	}
 	

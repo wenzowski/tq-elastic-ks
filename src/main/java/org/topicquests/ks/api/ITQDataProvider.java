@@ -19,6 +19,7 @@ import java.util.List;
 
 import net.minidev.json.JSONObject;
 
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.topicquests.common.api.IResult;
 import org.topicquests.ks.SystemEnvironment;
 import org.topicquests.ks.tm.api.IMergeImplementation;
@@ -451,5 +452,14 @@ public interface ITQDataProvider {
 	 */
 	IResult runQuery(String queryString, int start, int count, ITicket credentials);
 
+	/**
+	 * General purpose query handler
+	 * @param qb
+	 * @param credentials
+	 * @return
+	 */
+	IResult executeQueryBuilder(SearchSourceBuilder qb, ITicket credentials);
+	
+	
 	void shutDown();
 }

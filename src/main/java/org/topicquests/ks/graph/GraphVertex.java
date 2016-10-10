@@ -5,7 +5,6 @@ package org.topicquests.ks.graph;
 
 import java.util.*;
 
-import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 
 import org.topicquests.common.ResultPojo;
@@ -26,10 +25,8 @@ public class GraphVertex implements IVertex {
 	/**
 	 * 
 	 */
-	public GraphVertex(String vIndex, String eIndex) {
+	public GraphVertex() {
 		data = new JSONObject();
-		this.setVertexIndex(vIndex);
-		this.setEdgeIndex(eIndex);
 	}
 	
 	public GraphVertex(JSONObject jo) {
@@ -124,16 +121,14 @@ public class GraphVertex implements IVertex {
 		String prop = IGraphOntology.IN_EDGE_LIST_PROPERTY;
 		if (direction.equals(IGraphOntology.DIRECTION_OUT))
 			prop = IGraphOntology.OUT_EDGE_LIST_PROPERTY;
-		List<JSONObject> edges = (List<JSONObject>)data.get(prop);
+		List<IEdge> edges = (List<IEdge>)data.get(prop);
 		if (edges != null) {
 			List<IEdge> result = new ArrayList<IEdge>();
-			JSONObject jo;
 			IEdge e;
 			String lbl;
-			Iterator<JSONObject> itr = edges.iterator();
+			Iterator<IEdge> itr = edges.iterator();
 			while (itr.hasNext()) {
-				jo = itr.next();
-				e = new GraphEdge(jo);
+				e = itr.next();
 				lbl = e.getLabel();
 				if (labels == null)
 					result.add(e);
@@ -193,9 +188,7 @@ public class GraphVertex implements IVertex {
 	}
 	@Override
 	public void setVersion(String version) {
-		System.out.println("SV- "+version);
 		data.put(IGraphOntology.VERSION_PROPERTY, version);
-		System.out.println("SV+ "+this.toJSONString());
 	}
 
 	@Override
@@ -210,54 +203,24 @@ public class GraphVertex implements IVertex {
 	
 	@Override
 	public void addEdge(String direction, IEdge e) {
-		System.out.println("AE- "+this.toJSONString()+"\n"+e.toJSONString());
-		final JSONObject myData = data;
-		JSONObject jo = e.getData();
-		jo = (JSONObject)jo.clone();
-		String prop = IGraphOntology.IN_EDGE_ID_LIST_PROPERTY_TYPE;
-		if (direction.equals(IGraphOntology.DIRECTION_OUT)) {
-			prop = IGraphOntology.OUT_EDGE_ID_LIST_PROPERTY_TYPE;
-		} 
-		List<String> eids = (List<String>)myData.get(prop);
-		System.out.println("AE-0 "+eids+" "+e.getId());
-		///////////////////////
-		//addEdge has two behaviors:
-		// if this is a new operation, addEdge just adds the edgeID
-		// otherwise, it's a population exercise: put the edge in
-		// as a JSONObject
-		///////////////////////
-		if (eids != null && eids.contains(e.getId())) {
-			//IEdge ex = new GraphEdge(jo);
-			//IF it's an IN edge, that edge's OUT vertex is this Vertex
-			//IF it's an OUT edge, that edge's IN vertex is this Vertex
-			prop = IGraphOntology.IN_EDGE_LIST_PROPERTY;
-			if (direction.equals(IGraphOntology.DIRECTION_OUT)) {
-				prop = IGraphOntology.OUT_EDGE_LIST_PROPERTY;
-				jo.remove(IGraphOntology.IN_VERTEX_PROPERTY);
-			} else {
-				jo.remove(IGraphOntology.OUT_VERTEX_PROPERTY);
-			}
-			JSONArray edges = (JSONArray)data.get(prop);
-			if (edges == null) {
-				edges = new JSONArray();
-				//data.put(prop, edges);
-			}
-			if (!edges.contains(jo))
-				edges.add(jo);
-			System.out.println("AE-1 "+this.getId()+" "+jo);
-			System.out.println("AE-1a "+myData);
-			System.out.println("AE-1b "+prop+" "+edges);
-			myData.put(prop, edges);
-			System.out.println("AE-1c "+myData.keySet());
-			System.out.println("AE-2 "+prop+" "+myData.size());
-		} else {
-			if (eids == null)
-				eids = new ArrayList<String>();
-			if (!eids.contains(e.getId()))
-				eids.add(e.getId());
-			myData.put(prop, eids);
+		String prop = IGraphOntology.IN_EDGE_LIST_PROPERTY;
+		if (direction.equals(IGraphOntology.DIRECTION_OUT))
+			prop = IGraphOntology.OUT_EDGE_LIST_PROPERTY;
+		List<IEdge> edges = (List<IEdge>)data.get(prop);
+		if (edges == null) {
+			edges = new ArrayList<IEdge>();
 		}
-		data = myData;
+		edges.add(e);
+		data.put(prop, edges);
+		prop = IGraphOntology.IN_EDGE_ID_LIST_PROPERTY_TYPE;
+		if (direction.equals(IGraphOntology.DIRECTION_OUT))
+			prop = IGraphOntology.OUT_EDGE_ID_LIST_PROPERTY_TYPE;
+		List<String> eids = (List<String>)data.get(prop);
+		if (eids == null)
+			eids = new ArrayList<String>();
+		if (!eids.contains(e.getId()))
+			eids.add(e.getId());
+		data.put(prop, eids);
 	}
 	
 	@Override
@@ -268,27 +231,6 @@ public class GraphVertex implements IVertex {
 	@Override
 	public void doUpdate() {
 		this.setVersion(Long.toString(System.currentTimeMillis()));
-	}
-
-	@Override
-	public void setVertexIndex(String index) {
-		data.put(VERTEX_INDEX_PROP, index);
-
-	}
-
-	@Override
-	public String getVertexIndex() {
-		return (String)data.getAsString(VERTEX_INDEX_PROP);
-	}
-
-	@Override
-	public void setEdgeIndex(String index) {
-		data.put(EDGE_INDEX_PROP, index);
-	}
-
-	@Override
-	public String getEdgeIndex() {
-		return (String)data.getAsString(EDGE_INDEX_PROP);
 	}
 
 }

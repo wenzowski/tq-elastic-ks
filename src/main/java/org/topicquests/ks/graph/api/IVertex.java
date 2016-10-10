@@ -13,7 +13,6 @@ import org.topicquests.common.api.IResult;
  */
 public interface IVertex extends IElement {
 
-	
 	/**
 	 * if <code>labels</code> == <code>null</code>, return all
 	 * @param direction

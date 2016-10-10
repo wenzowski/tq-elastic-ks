@@ -102,6 +102,7 @@ public class DoubleTreeTab
   class PopulateWorker extends Thread {
 	  public void run() {
 		  IResult r = database.loadTree(ITQCoreOntology.TYPE_TYPE, leftDepth,0, pageSize, credentials);
+		  
 		  ITreeNode root = (ITreeNode)r.getResultObject();
 		  TopicTreeNode rt = nodeToTreeNode(root);
 		  expandTree(rt,root);
