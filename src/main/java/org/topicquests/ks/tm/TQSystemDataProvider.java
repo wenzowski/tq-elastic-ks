@@ -898,7 +898,7 @@ public class TQSystemDataProvider implements ITQDataProvider {
 	@Override
 	public IResult multiGetNodes(List<String> locators, ITicket credentials) {
 		IResult result = database.multiGetNodes(locators, _INDEX);
-		return null;
+		return result;
 	}
 	/**
 	 * <p>Return <code>1</code> if sufficient <code>credentials</code>

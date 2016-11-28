@@ -48,6 +48,11 @@ public interface IRelationStruct {
 	String getTargetLabel();
 	void setTargetNodeType(String nodeType);
 	String getTargetNodeType();
+	
+	/**
+	 * "s" == source, "t" == target
+	 * @param sORt
+	 */
 	void setSourceOrTarget(String sORt);
 	String getSourceOrTarget();
 	

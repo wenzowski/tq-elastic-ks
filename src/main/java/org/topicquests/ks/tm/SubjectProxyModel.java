@@ -176,7 +176,7 @@ public class SubjectProxyModel implements ISubjectProxyModel {
 
 	/* (non-Javadoc)
 	 * @see org.topicquests.node.api.INodeProviderModel#updateNode(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, boolean, org.topicquests.node.api.ITicket)
-	 */
+	 * ///not implemented yet
 	@Override
 	public IResult updateNode(String nodeLocator, String updatedLabel,
 			String updatedDetails, String language, String oldLabel,
@@ -191,13 +191,15 @@ public class SubjectProxyModel implements ISubjectProxyModel {
 	 */
 	@Override
 	public IResult changePropertyValue(ISubjectProxy node, String key, String newValue) {
-		// TODO Auto-generated method stub
-		return null;
+		node.setProperty(key, newValue);
+		node.doUpdate();
+		IResult r = database.putNode(node);
+		return r;
 	}
 
 	/* (non-Javadoc)
 	 * @see org.topicquests.node.api.INodeProviderModel#addPropertyValueInList(org.topicquests.node.api.ISubjectProxy, java.lang.String, java.lang.String)
-	 */
+	 * /
 	@Override
 	public IResult addPropertyValueInList(ISubjectProxy node, String key,
 			String newValue) {
@@ -207,7 +209,7 @@ public class SubjectProxyModel implements ISubjectProxyModel {
 
 	/* (non-Javadoc)
 	 * @see org.topicquests.node.api.INodeProviderModel#relateNodes(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, boolean, boolean)
-	 */
+	 * / // not implemented
 	@Override
 	public IResult relateNodes(String sourceNodeLocator,
 			String targetNodeLocator, String relationTypeLocator,
@@ -225,15 +227,10 @@ public class SubjectProxyModel implements ISubjectProxyModel {
 			String relationTypeLocator, String userId, String smallImagePath,
 			String largeImagePath, boolean isTransclude, boolean isPrivate) {
 		IResult result = new ResultPojo();
+		IResult r = database.getNode(relationTypeLocator, credentials);
+		if (r.hasError()) result.addErrorString(r.getErrorString());
+		ISubjectProxy reltyp = (ISubjectProxy)r.getResultObject();
 		String signature = sourceNode.getLocator()+relationTypeLocator+targetNode.getLocator();
-		ITuple t = (ITuple)this.newInstanceNode(signature, relationTypeLocator, 
-				sourceNode.getLocator()+" "+relationTypeLocator+" "+targetNode.getLocator(), "en", userId, smallImagePath, largeImagePath, isPrivate);
-		t.setIsTransclude(isTransclude);
-		t.setObject(targetNode.getLocator());
-		t.setObjectType(ITQCoreOntology.NODE_TYPE);
-		t.setSubjectLocator(sourceNode.getLocator());
-		t.setSubjectType(ITQCoreOntology.NODE_TYPE);
-//		t.setSignature(signature);
 		String tlab = targetNode.getLabel("en");
 		if (tlab == null) {
 			tlab = targetNode.getSubject("en");
@@ -241,7 +238,17 @@ public class SubjectProxyModel implements ISubjectProxyModel {
 		String slab = sourceNode.getLabel("en");
 		if (slab == null) {
 			slab = sourceNode.getSubject("en");
-		}
+		}		
+		ITuple t = (ITuple)this.newInstanceNode(signature, relationTypeLocator, reltyp.getLabel("en"),
+				"Relate existing nodes:<br/>"+slab+"<br/> with</br> "+tlab+"<br/>with the relation: "+relationTypeLocator, "en", userId, smallImagePath, largeImagePath, isPrivate);
+		environment.logDebug("SubjectProxyModel.relateExistingNodes "+signature+" "+t.getLocator());
+		t.setIsTransclude(isTransclude);
+		t.setObject(targetNode.getLocator());
+		t.setObjectType(ITQCoreOntology.NODE_TYPE);
+		t.setSubjectLocator(sourceNode.getLocator());
+		t.setSubjectType(ITQCoreOntology.NODE_TYPE);
+//		t.setSignature(signature);
+		
 		if (isPrivate) {
 			sourceNode.addRestrictedRelation(relationTypeLocator, signature, 
 					relationTypeLocator, targetNode.getSmallImage(), targetNode.getLocator(), tlab, targetNode.getNodeType(), "t");
@@ -272,11 +279,12 @@ public class SubjectProxyModel implements ISubjectProxyModel {
 			result.addErrorString(x.getErrorString());
 		environment.logDebug("SubjectProxyModel.relateNewNodes "+sourceNode.getLocator()+" "+targetNode.getLocator()+" "+t.getLocator()+" | "+result.getErrorString());
 		result.setResultObject(t);
-		return result;	}
+		return result;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.topicquests.node.api.INodeProviderModel#relateNewNodes(org.topicquests.node.api.ISubjectProxy, org.topicquests.node.api.ISubjectProxy, java.lang.String, java.lang.String, java.lang.String, java.lang.String, boolean, boolean)
-	 */
+	 * // not implemented yet
 	@Override
 	public IResult relateNewNodes(ISubjectProxy sourceNode, ISubjectProxy targetNode,
 			String relationTypeLocator, String userId, String smallImagePath,
@@ -294,8 +302,13 @@ public class SubjectProxyModel implements ISubjectProxyModel {
 			String smallImagePath, String largeImagePath, boolean isTransclude,
 			boolean isPrivate) {
 		IResult result = new ResultPojo();
-		String signature = sourceNode.getLocator()+relationTypeLocator+targetNode.getLocator();
-		ITuple t = (ITuple)this.newInstanceNode(signature, relationTypeLocator, signature,
+	//	environment.logDebug("SubjectProxyModel.relateExistingNodesAsPivots- "+relationTypeLocator);
+		IResult r = database.getNode(relationTypeLocator, credentials);
+		if (r.hasError()) result.addErrorString(r.getErrorString());
+		ISubjectProxy reltyp = (ISubjectProxy)r.getResultObject();
+	//	environment.logDebug("SubjectProxyModel.relateExistingNodesAsPivots-1 "+r.getErrorString()+" | "+sourceNode.getLocator()+" "+reltyp+" "+targetNode.getLocator());
+		String signature = sourceNode.getLocator()+" "+reltyp+" "+targetNode.getLocator();
+		ITuple t = (ITuple)this.newInstanceNode(signature, relationTypeLocator, reltyp.getLabel("en"),
 				sourceNode.getLocator()+" "+relationTypeLocator+" "+targetNode.getLocator(), "en", userId, smallImagePath, largeImagePath, isPrivate);
 		t.setIsTransclude(isTransclude);
 		t.setObject(targetNode.getLocator());
@@ -341,11 +354,12 @@ public class SubjectProxyModel implements ISubjectProxyModel {
 			result.addErrorString(x.getErrorString());
 		environment.logDebug("SubjectProxyModel.relateExistingNodesAsPivots "+sourceNode.getLocator()+" "+targetNode.getLocator()+" "+t.getLocator()+" | "+result.getErrorString());
 		result.setResultObject(t);
-		return result;	}
+		return result;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.topicquests.node.api.INodeProviderModel#assertMerge(java.lang.String, java.lang.String, java.util.Map, double, java.lang.String)
-	 */
+	 * /
 	@Override
 	public IResult assertMerge(String sourceNodeLocator,
 			String targetNodeLocator, Map<String, Double> mergeData,
@@ -356,7 +370,7 @@ public class SubjectProxyModel implements ISubjectProxyModel {
 
 	/* (non-Javadoc)
 	 * @see org.topicquests.node.api.INodeProviderModel#assertPossibleMerge(java.lang.String, java.lang.String, java.util.Map, double, java.lang.String)
-	 */
+	 * /
 	@Override
 	public IResult assertPossibleMerge(String sourceNodeLocator,
 			String targetNodeLocator, Map<String, Double> mergeData,
@@ -367,7 +381,7 @@ public class SubjectProxyModel implements ISubjectProxyModel {
 
 	/* (non-Javadoc)
 	 * @see org.topicquests.node.api.INodeProviderModel#assertUnmerge(java.lang.String, org.topicquests.node.api.ISubjectProxy, java.util.Map, double, java.lang.String)
-	 */
+	 * /
 	@Override
 	public IResult assertUnmerge(String sourceNodeLocator,
 			ISubjectProxy targetNodeLocator, Map<String, Double> mergeData,
@@ -375,6 +389,7 @@ public class SubjectProxyModel implements ISubjectProxyModel {
 		// TODO Auto-generated method stub
 		return null;
 	}
+*/
 	//////////////////////////////////////////////
 	
 	private String newUUID() {
@@ -402,14 +417,14 @@ public class SubjectProxyModel implements ISubjectProxyModel {
 		return result;
 	}
 
-	@Override
+/*	@Override // not implemented yet
 	public IResult addParentNode(ISubjectProxy proxy, String contextLocator,
 			String smallIcon, String locator, String subject) {
 		IResult result = new ResultPojo();
 		// TODO Auto-generated method stub
 		return result;
 	}
-
+*/
 	@Override
 	public IResult addChildNode(ISubjectProxy proxy, String contextLocator,
 			String smallIcon, String locator, String subject,
@@ -438,7 +453,6 @@ public class SubjectProxyModel implements ISubjectProxyModel {
 			if (r.hasError())
 				result.addErrorString(r.getErrorString());
 		}
-		
 		return result;
 	}
 }

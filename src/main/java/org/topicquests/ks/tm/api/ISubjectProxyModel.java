@@ -36,7 +36,7 @@ public interface ISubjectProxyModel {
 	 * @param subject
 	 * @return TODO
 	 */
-	IResult addParentNode(ISubjectProxy proxy, String contextLocator, String smallIcon, String locator, String subject);
+//	IResult addParentNode(ISubjectProxy proxy, String contextLocator, String smallIcon, String locator, String subject);
 	
 	/**
 	 * This is the only sanctioned API for adding child nodes
@@ -196,9 +196,9 @@ public interface ISubjectProxyModel {
 	   * @param isLanguageAddition <code>true</code> if is new translation
 	   * @param credentials
 	   * @return
-	   */
-	  IResult updateNode(String nodeLocator, String updatedLabel, String updatedDetails, String language, 
-			  String oldLabel, String oldDetails, String userId, boolean isLanguageAddition, ITicket  credentials);
+	   */  // not implemented yet
+//	  IResult updateNode(String nodeLocator, String updatedLabel, String updatedDetails, String language, 
+//			  String oldLabel, String oldDetails, String userId, boolean isLanguageAddition, ITicket  credentials);
 	  	  
 	  /**
 	   * <p>Perform a single, surgical change to a particular <code>key</code> (field)</p>
@@ -220,8 +220,8 @@ public interface ISubjectProxyModel {
 	   * @param key
 	   * @param newValue
 	   * @return
-	   */
-	  IResult addPropertyValueInList(ISubjectProxy node, String key, String newValue);
+	   */ // not implemented yet
+//	  IResult addPropertyValueInList(ISubjectProxy node, String key, String newValue);
 	  
 	  /**
 	   * <p>Form an {@link ITuple} between <code>sourceNodeLocator</code> and <code>targetNodeLocator</code></p>
@@ -237,9 +237,9 @@ public interface ISubjectProxyModel {
 	   * @param isTransclude
 	   * @param isPrivate
 	   * @return
-	   */
-	  IResult relateNodes(String sourceNodeLocator, String targetNodeLocator, String relationTypeLocator, 
-			  String userId, String smallImagePath, String largeImagePath, boolean isTransclude, boolean isPrivate);
+	   */ // not implemented
+//	  IResult relateNodes(String sourceNodeLocator, String targetNodeLocator, String relationTypeLocator, 
+//			  String userId, String smallImagePath, String largeImagePath, boolean isTransclude, boolean isPrivate);
 	  
 	  /**
 	   * <p>Form an {@link ITuple} between <code>sourceNode</code> and <code>targetNode</code></p>
@@ -269,9 +269,9 @@ public interface ISubjectProxyModel {
 	   * @param isTransclude
 	   * @param isPrivate
 	   * @return
-	   */
-	  IResult relateNewNodes(ISubjectProxy sourceNode, ISubjectProxy targetNode, String relationTypeLocator, 
-			  String userId, String smallImagePath, String largeImagePath, boolean isTransclude, boolean isPrivate);
+	   */ //not implemented yet
+//	  IResult relateNewNodes(ISubjectProxy sourceNode, ISubjectProxy targetNode, String relationTypeLocator, 
+//			  String userId, String smallImagePath, String largeImagePath, boolean isTransclude, boolean isPrivate);
 	 
 	  /**
 	   * Same as adding a relation, except adding pivots
@@ -303,8 +303,8 @@ public interface ISubjectProxyModel {
 	   * @param userLocator
 	   * @return the locator of the created {@link ITuple}
 	   */
-	  IResult assertMerge(String sourceNodeLocator, String targetNodeLocator, 
-			  Map<String, Double> mergeData, double mergeConfidence, String userLocator);
+//	  IResult assertMerge(String sourceNodeLocator, String targetNodeLocator, 
+//			  Map<String, Double> mergeData, double mergeConfidence, String userLocator);
 	  
 	  /**
 	   * Assert that the two nodes <em>might need to be merged</em> based on the
@@ -317,8 +317,8 @@ public interface ISubjectProxyModel {
 	   * @return
 	   * NOTE: not yet implemented
 	   */
-	  IResult assertPossibleMerge(String sourceNodeLocator, String targetNodeLocator, 
-			  Map<String, Double> mergeData, double mergeConfidence, String userLocator);
+//	  IResult assertPossibleMerge(String sourceNodeLocator, String targetNodeLocator, 
+//			  Map<String, Double> mergeData, double mergeConfidence, String userLocator);
 
 	  /**
 	   * Assert that these two nodes must not be merged; they were before, but for reasons given,
@@ -331,7 +331,7 @@ public interface ISubjectProxyModel {
 	   * @return
 	   *Note: not implemented yet
 	   */
-	  IResult assertUnmerge(String sourceNodeLocator, ISubjectProxy targetNodeLocator, 
-			  Map<String, Double> mergeData, double mergeConfidence, String userLocator);
+//	  IResult assertUnmerge(String sourceNodeLocator, ISubjectProxy targetNodeLocator, 
+//			  Map<String, Double> mergeData, double mergeConfidence, String userLocator);
 
 }

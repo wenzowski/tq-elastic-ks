@@ -40,6 +40,10 @@ public class StatisticsUtility {
 		loadStats();
 	}
 	
+	public JSONObject getData() {
+		return data;
+	}
+	
 	public void setValue(String key, Long value) {
 		synchronized(data) {
 			data.put(key, value);

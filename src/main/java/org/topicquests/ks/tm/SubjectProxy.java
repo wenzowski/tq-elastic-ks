@@ -900,6 +900,7 @@ public class SubjectProxy implements
 		s.setTargetLocator(targetLocator);
 		s.setTargetLabel(targetLabel);
 		s.setTargetNodeType(nodeType);
+		s.setSourceOrTarget(sourceOrTarget);
 		this.addMultivaluedSetJSONProperty(ITQCoreOntology.TUPLE_LIST_PROPERTY, s.getData());
 	}
 
@@ -1115,7 +1116,7 @@ public class SubjectProxy implements
 			for (int i=0;i<len;i++) {
 				rln = relns.get(i);
 				//x = pluckContextFromJSONString(rln);
-				if (rln != null && rln.get("lox").equals(contextLocator))
+				if (rln != null && rln.get("contextLocator").equals(contextLocator))
 					result.add(rln);
 			}
 			return result;
@@ -1183,7 +1184,7 @@ public class SubjectProxy implements
 			for (int i=0;i<len;i++) {
 				rln = relns.get(i);
 				//x = pluckContextFromJSONString(rln);
-				if (rln != null && rln.get("lox").equals(contextLocator))
+				if (rln != null && rln.get("contextLocator").equals(contextLocator))
 					result.add(rln);
 			}
 			return result;
