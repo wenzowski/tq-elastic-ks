@@ -25,9 +25,9 @@ import java.util.Map;
 import net.minidev.json.JSONObject;
 
 import org.apache.commons.lang3.StringUtils;
-import org.nex.util.DateUtil;
-import org.topicquests.common.ResultPojo;
-import org.topicquests.common.api.IResult;
+import org.topicquests.support.util.DateUtil;
+import org.topicquests.support.ResultPojo;
+import org.topicquests.support.api.IResult;
 import org.topicquests.ks.api.ITQCoreOntology;
 import org.topicquests.ks.tm.api.IAirStruct;
 import org.topicquests.ks.tm.api.IChildStruct;

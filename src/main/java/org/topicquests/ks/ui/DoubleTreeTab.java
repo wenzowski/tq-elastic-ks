@@ -26,7 +26,7 @@ import javax.swing.border.Border;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
 
-import org.topicquests.common.api.IResult;
+import org.topicquests.support.api.IResult;
 import org.topicquests.ks.SystemEnvironment;
 import org.topicquests.ks.api.ITQCoreOntology;
 import org.topicquests.ks.api.ITQDataProvider;

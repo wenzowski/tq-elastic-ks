@@ -6,7 +6,7 @@ package org.topicquests.ks.graph;
 import org.topicquests.ks.graph.api.IGraphProvider;
 import org.topicquests.ks.SystemEnvironment;
 import org.topicquests.node.provider.ProviderEnvironment;
-import org.topicquests.util.LoggingPlatform;
+import org.topicquests.support.util.LoggingPlatform;
 
 /**
  * @author park

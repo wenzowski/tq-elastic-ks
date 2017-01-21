@@ -21,7 +21,7 @@ import java.util.*;
 
 import org.topicquests.ks.SystemEnvironment;
 import org.topicquests.ks.tm.api.ISubjectProxy;
-import org.topicquests.util.ConfigurationHelper;
+import org.topicquests.support.util.ConfigurationHelper;
 
 /**
  * @author park

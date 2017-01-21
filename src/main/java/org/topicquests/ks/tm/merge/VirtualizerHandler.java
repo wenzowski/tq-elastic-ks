@@ -18,7 +18,7 @@ package org.topicquests.ks.tm.merge;
 
 import java.util.*;
 
-import org.topicquests.common.api.IResult;
+import org.topicquests.support.api.IResult;
 import org.topicquests.ks.SystemEnvironment;
 import org.topicquests.ks.tm.api.IMergeResultsListener;
 import org.topicquests.ks.tm.api.ISubjectProxy;

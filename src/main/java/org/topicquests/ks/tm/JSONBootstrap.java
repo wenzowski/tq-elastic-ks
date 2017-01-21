@@ -18,9 +18,9 @@ package org.topicquests.ks.tm;
 import java.io.*;
 import java.util.*;
 
-import org.topicquests.util.TextFileHandler;
-import org.topicquests.common.ResultPojo;
-import org.topicquests.common.api.IResult;
+import org.topicquests.support.util.TextFileHandler;
+import org.topicquests.support.ResultPojo;
+import org.topicquests.support.api.IResult;
 import org.topicquests.ks.SystemEnvironment;
 import org.topicquests.ks.TicketPojo;
 import org.topicquests.ks.api.ITQCoreOntology;

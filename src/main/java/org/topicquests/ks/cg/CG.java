@@ -20,7 +20,7 @@ import java.util.List;
 
 import net.minidev.json.JSONObject;
 
-import org.topicquests.common.api.IResult;
+import org.topicquests.support.api.IResult;
 import org.topicquests.ks.cg.api.IConceptualGraph;
 import org.topicquests.ks.graph.GraphVertex;
 import org.topicquests.ks.graph.api.IEdge;

@@ -17,7 +17,7 @@ package org.topicquests.ks.ui;
 
 import javax.swing.*;
 
-import org.topicquests.common.api.IResult;
+import org.topicquests.support.api.IResult;
 import org.topicquests.ks.api.ITQCoreOntology;
 import org.topicquests.ks.api.ITQDataProvider;
 import org.topicquests.ks.api.ITicket;

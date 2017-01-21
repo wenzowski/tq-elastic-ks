@@ -18,8 +18,8 @@ package org.topicquests.ks;
 import java.util.List;
 import java.util.Map;
 
-import org.nex.config.ConfigPullParser;
-import org.topicquests.common.api.IResult;
+import org.topicquests.support.config.ConfigPullParser;
+import org.topicquests.support.api.IResult;
 import org.topicquests.ks.api.IExtendedConsoleDisplay;
 import org.topicquests.ks.api.IExtendedEnvironment;
 import org.topicquests.ks.api.ITQDataProvider;
@@ -31,8 +31,8 @@ import org.topicquests.ks.tm.api.ISubjectProxyModel;
 import org.topicquests.ks.tm.merge.VirtualizerHandler;
 import org.topicquests.ks.util.ElasticQueryDSL;
 import org.topicquests.node.provider.ProviderEnvironment;
-import org.topicquests.util.LoggingPlatform;
-import org.topicquests.util.Tracer;
+import org.topicquests.support.util.LoggingPlatform;
+import org.topicquests.support.util.Tracer;
 
 /**
  * @author park

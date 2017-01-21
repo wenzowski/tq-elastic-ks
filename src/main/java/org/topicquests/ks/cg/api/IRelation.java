@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.List;
 import java.util.Iterator;
 
-import org.topicquests.common.api.IResult;
+import org.topicquests.support.api.IResult;
 import org.topicquests.ks.tm.api.ISubjectProxy;
 
 

@@ -7,9 +7,9 @@ import java.util.*;
 
 import net.minidev.json.JSONObject;
 
-import org.nex.util.LRUCache;
-import org.topicquests.common.ResultPojo;
-import org.topicquests.common.api.IResult;
+import org.topicquests.support.util.LRUCache;
+import org.topicquests.support.ResultPojo;
+import org.topicquests.support.api.IResult;
 import org.topicquests.ks.graph.api.IEdge;
 import org.topicquests.ks.graph.api.IGraphOntology;
 import org.topicquests.ks.graph.api.IGraphProvider;

@@ -18,7 +18,7 @@ package org.topicquests.ks.tm.api;
 
 import java.util.Map;
 
-import org.topicquests.common.api.IResult;
+import org.topicquests.support.api.IResult;
 import org.topicquests.ks.SystemEnvironment;
 
 /**

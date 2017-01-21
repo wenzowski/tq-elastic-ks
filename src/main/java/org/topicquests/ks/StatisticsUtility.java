@@ -19,7 +19,7 @@ import java.util.Iterator;
 
 //import org.json.simple.JSONObject;
 //import org.json.simple.parser.JSONParser;
-import org.topicquests.util.TextFileHandler;
+import org.topicquests.support.util.TextFileHandler;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 

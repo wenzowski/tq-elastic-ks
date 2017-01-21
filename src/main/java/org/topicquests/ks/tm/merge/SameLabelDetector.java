@@ -11,7 +11,7 @@ import net.minidev.json.parser.JSONParser;
 
 import org.topicquests.ks.SystemEnvironment;
 import org.topicquests.ks.tm.api.ISubjectProxy;
-import org.topicquests.util.TextFileHandler;
+import org.topicquests.support.util.TextFileHandler;
 
 /**
  * @author park

@@ -4,7 +4,7 @@
 package devtests;
 
 import java.util.*;
-import org.topicquests.common.api.IResult;
+import org.topicquests.support.api.IResult;
 import org.topicquests.ks.SystemEnvironment;
 import org.topicquests.ks.api.ITQDataProvider;
 import org.topicquests.node.provider.Client;

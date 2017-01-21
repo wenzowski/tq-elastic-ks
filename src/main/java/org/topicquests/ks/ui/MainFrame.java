@@ -36,7 +36,7 @@ import org.topicquests.ks.StatisticsUtility;
 import org.topicquests.ks.SystemEnvironment;
 import org.topicquests.ks.api.IEnvironment;
 import org.topicquests.ks.api.IExtendedConsoleDisplay;
-import org.topicquests.util.TextFileHandler;
+import org.topicquests.support.util.TextFileHandler;
 /**
  * @author Jack Park
  * @version 1.0

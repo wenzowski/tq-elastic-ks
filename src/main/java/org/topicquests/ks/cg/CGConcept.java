@@ -21,7 +21,7 @@ import java.util.Map;
 
 import net.minidev.json.JSONObject;
 
-import org.topicquests.common.api.IResult;
+import org.topicquests.support.api.IResult;
 import org.topicquests.ks.cg.api.ICGConcept;
 import org.topicquests.ks.cg.api.ICGConceptLinkStruct;
 import org.topicquests.ks.cg.api.IConceptType;

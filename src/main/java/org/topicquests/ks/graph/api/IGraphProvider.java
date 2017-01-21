@@ -5,7 +5,7 @@ package org.topicquests.ks.graph.api;
 
 import java.util.Map;
 
-import org.topicquests.common.api.IResult;
+import org.topicquests.support.api.IResult;
 
 
 /**

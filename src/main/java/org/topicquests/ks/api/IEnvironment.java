@@ -17,7 +17,7 @@ package org.topicquests.ks.api;
 
 import java.util.*;
 
-import org.topicquests.util.Tracer;
+import org.topicquests.support.util.Tracer;
 
 /**
  * @author park

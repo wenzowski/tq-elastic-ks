@@ -7,7 +7,7 @@ import java.util.*;
 
 import net.minidev.json.JSONObject;
 
-import org.topicquests.common.api.IResult;
+import org.topicquests.support.api.IResult;
 import org.topicquests.ks.graph.api.IEdge;
 import org.topicquests.ks.graph.api.IElement;
 import org.topicquests.ks.graph.api.IGraphOntology;

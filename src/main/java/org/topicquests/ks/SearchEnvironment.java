@@ -17,7 +17,7 @@ package org.topicquests.ks;
 
 import java.util.*;
 
-import org.topicquests.common.api.IResult;
+import org.topicquests.support.api.IResult;
 import org.topicquests.ks.api.IExtendedConsoleDisplay;
 import org.topicquests.ks.api.IExtendedEnvironment;
 import org.topicquests.ks.api.ITQDataProvider;

@@ -34,9 +34,14 @@
     </properties>
     <repositories>
         <repository>
-            <id>data-local</id>
-            <name>data</name>
-            <url>file://${project.basedir}/repo</url>
+            <id>snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
     </repositories>
     <build>
@@ -378,12 +383,12 @@
         <dependency>
             <groupId>org.topicquests</groupId>
             <artifactId>tq-elastic-node-provider</artifactId>
-            <version>0.4.1</version>
+            <version>0.4.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.topicquests</groupId>
             <artifactId>tq-support</artifactId>
-            <version>1.4</version>
+            <version>1.5-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>xpp3</groupId>

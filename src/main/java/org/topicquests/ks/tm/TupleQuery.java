@@ -22,15 +22,15 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 //import org.json.simple.JSONObject;
 //import org.json.simple.parser.JSONParser;
-import org.topicquests.common.ResultPojo;
-import org.topicquests.common.api.IResult;
+import org.topicquests.support.ResultPojo;
+import org.topicquests.support.api.IResult;
 import org.topicquests.ks.SystemEnvironment;
 import org.topicquests.ks.api.ITQCoreOntology;
 import org.topicquests.ks.api.ITQDataProvider;
 import org.topicquests.ks.api.ITicket;
 import org.topicquests.ks.tm.api.ITuple;
 import org.topicquests.ks.tm.api.ITupleQuery;
-import org.topicquests.util.LoggingPlatform;
+import org.topicquests.support.util.LoggingPlatform;
 
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
