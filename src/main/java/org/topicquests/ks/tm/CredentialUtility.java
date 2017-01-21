@@ -15,10 +15,12 @@
  */
 package org.topicquests.ks.tm;
 
-import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import com.google.common.collect.Sets;
+import com.google.common.collect.Sets.SetView;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.topicquests.ks.SystemEnvironment;
 import org.topicquests.ks.api.ITicket;
 import org.topicquests.ks.tm.api.ISubjectProxy;
@@ -63,10 +65,10 @@ public class CredentialUtility {
 				}
 				if (!found) {
 					//check goup
-					l = credentials.listGroupLocators();
-					List<String> acls = node.listACLValues();
-					Collection<String> intersect = CollectionUtils.intersection(acls, l);
-					found = !intersect.isEmpty();
+					Set<String> groupLocators = Sets.newHashSet(credentials.listGroupLocators());
+					Set<String> aclValues = Sets.newHashSet(node.listACLValues());
+					SetView<String> intersection = Sets.intersection(groupLocators, aclValues);
+					found = !intersection.isEmpty();
 				}
 				if (!found)
 					return 0;
