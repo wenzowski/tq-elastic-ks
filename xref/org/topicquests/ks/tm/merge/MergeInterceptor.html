@@ -46,7 +46,7 @@
 <a class="jxr_linenumber" name="36" href="#36">36</a>  	<strong class="jxr_keyword">private</strong> Properties p = <strong class="jxr_keyword">new</strong> Properties();
 <a class="jxr_linenumber" name="37" href="#37">37</a>  	<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> isRunning = <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="38" href="#38">38</a>  	<strong class="jxr_keyword">private</strong> <a href="../../../../../org/topicquests/ks/tm/merge/SameLabelDetector.html">SameLabelDetector</a> sameLabelDetector;
-<a class="jxr_linenumber" name="39" href="#39">39</a>  	<strong class="jxr_keyword">private</strong> <a href="../../../../../org/topicquests/ks/tm/merge/VirtualizerHandler.html">Worker</a> thread;
+<a class="jxr_linenumber" name="39" href="#39">39</a>  	<strong class="jxr_keyword">private</strong> <a href="../../../../../org/topicquests/ks/ProxyEventHandler.html">Worker</a> thread;
 <a class="jxr_linenumber" name="40" href="#40">40</a>  	<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> shouldPropagate = false; <em class="jxr_comment">// default</em>
 <a class="jxr_linenumber" name="41" href="#41">41</a>  
 <a class="jxr_linenumber" name="42" href="#42">42</a>  	<em class="jxr_javadoccomment">/**</em>
@@ -62,7 +62,7 @@
 <a class="jxr_linenumber" name="52" href="#52">52</a>  		fis.close();
 <a class="jxr_linenumber" name="53" href="#53">53</a>  		String portx = p.getProperty(<span class="jxr_string">"port"</span>);
 <a class="jxr_linenumber" name="54" href="#54">54</a>  		myPort = Integer.parseInt(portx);
-<a class="jxr_linenumber" name="55" href="#55">55</a>  		thread = <strong class="jxr_keyword">new</strong> <a href="../../../../../org/topicquests/ks/tm/merge/VirtualizerHandler.html">Worker</a>();
+<a class="jxr_linenumber" name="55" href="#55">55</a>  		thread = <strong class="jxr_keyword">new</strong> <a href="../../../../../org/topicquests/ks/ProxyEventHandler.html">Worker</a>();
 <a class="jxr_linenumber" name="56" href="#56">56</a>  		sameLabelDetector = <strong class="jxr_keyword">new</strong> <a href="../../../../../org/topicquests/ks/tm/merge/SameLabelDetector.html">SameLabelDetector</a>(environment);
 <a class="jxr_linenumber" name="57" href="#57">57</a>  		String sp = env.getStringProperty(<span class="jxr_string">"MergeListenerPropagate"</span>);
 <a class="jxr_linenumber" name="58" href="#58">58</a>  		shouldPropagate = !(sp.equalsIgnoreCase(<span class="jxr_string">"No"</span>));
@@ -125,7 +125,7 @@
 <a class="jxr_linenumber" name="115" href="#115">115</a> 	    }
 <a class="jxr_linenumber" name="116" href="#116">116</a> 	}
 <a class="jxr_linenumber" name="117" href="#117">117</a> 	
-<a class="jxr_linenumber" name="118" href="#118">118</a> 	<strong class="jxr_keyword">class</strong> <a href="../../../../../org/topicquests/ks/tm/merge/VirtualizerHandler.html">Worker</a> <strong class="jxr_keyword">extends</strong> Thread {
+<a class="jxr_linenumber" name="118" href="#118">118</a> 	<strong class="jxr_keyword">class</strong> <a href="../../../../../org/topicquests/ks/ProxyEventHandler.html">Worker</a> <strong class="jxr_keyword">extends</strong> Thread {
 <a class="jxr_linenumber" name="119" href="#119">119</a> 		<strong class="jxr_keyword">private</strong> List&lt;ISubjectProxy&gt;documents;
 <a class="jxr_linenumber" name="120" href="#120">120</a> 		<strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> isStillRunning = <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="121" href="#121">121</a> 		
